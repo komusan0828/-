@@ -3,7 +3,7 @@
 // 環境変数 ANTHROPIC_API_KEY があれば、AI が「ざっくり要約・話のネタ・用語解説」を付ける
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { CATEGORIES, BUZZ_FEEDS, NG_WORDS, NG_WORDS_LOCAL, LOCAL_BOOST } from './feeds.mjs';
+import { CATEGORIES, BUZZ_FEEDS, NG_WORDS, NG_WORDS_LOCAL, NG_SOURCES, LOCAL_BOOST } from './feeds.mjs';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const DATA = path.join(ROOT, 'docs', 'data');
@@ -77,6 +77,111 @@ function parseRss(xml, feedUrl) {
   }
   return items;
 }
+// ---------- 記事ページから概要を取ってくる ----------
+const UA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1';
+
+// Google ニュースの転送用 URL を、元の記事の URL に変換する
+async function resolveGoogleUrl(url) {
+  const id = (url.match(/\/articles\/([^?/]+)/) || [])[1];
+  if (!id) return url;
+  try {
+    const page = await (await fetch(`https://news.google.com/articles/${id}?hl=ja&gl=JP&ceid=JP:ja`, {
+      headers: { 'User-Agent': UA }, signal: AbortSignal.timeout(10000),
+    })).text();
+    const sg = (page.match(/data-n-a-sg="([^"]+)"/) || [])[1];
+    const ts = (page.match(/data-n-a-ts="([^"]+)"/) || [])[1];
+    if (!sg || !ts) return null;
+    const inner = `["garturlreq",[["X","X",["X","X"],null,null,1,1,"JP:ja",null,1,null,null,null,null,null,0,1],"X","X",1,[1,1,1],1,1,null,0,0,null,0],"${id}",${ts},"${sg}"]`;
+    const body = 'f.req=' + encodeURIComponent(JSON.stringify([[['Fbv4je', inner, null, 'generic']]]));
+    const text = await (await fetch('https://news.google.com/_/DotsSplashUi/data/batchexecute', {
+      method: 'POST',
+      headers: { 'User-Agent': UA, 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+      body, signal: AbortSignal.timeout(10000),
+    })).text();
+    const m = text.match(/garturlres\\",\\"(https?:[^"\\]+)/);
+    return m ? m[1] : null;
+  } catch {
+    return null;
+  }
+}
+
+function metaContent(html, key) {
+  const re1 = new RegExp(`<meta[^>]+(?:property|name)=["']${key}["'][^>]*content=["']([^"']*)["']`, 'i');
+  const re2 = new RegExp(`<meta[^>]+content=["']([^"']*)["'][^>]*(?:property|name)=["']${key}["']`, 'i');
+  const m = html.match(re1) || html.match(re2);
+  return m ? stripTags(decode(m[1])) : '';
+}
+
+async function fetchDescription(url) {
+  try {
+    const res = await fetch(url, {
+      headers: { 'User-Agent': UA, 'Accept-Language': 'ja' },
+      redirect: 'follow',
+      signal: AbortSignal.timeout(12000),
+    });
+    if (!res.ok) return { url: res.url || url, desc: '' };
+    const buf = Buffer.from(await res.arrayBuffer());
+    // 文字コード（Shift_JIS などのサイトもある）
+    let charset = (res.headers.get('content-type') || '').match(/charset=([\w-]+)/i)?.[1];
+    if (!charset) charset = buf.toString('latin1', 0, 3000).match(/charset=["']?([\w-]+)/i)?.[1];
+    let html;
+    try { html = new TextDecoder(charset || 'utf-8').decode(buf); } catch { html = buf.toString('utf8'); }
+    const desc = metaContent(html, 'og:description') || metaContent(html, 'description') || metaContent(html, 'twitter:description');
+    return { url: res.url || url, desc };
+  } catch {
+    return { url, desc: '' };
+  }
+}
+
+// 並列数を絞って順番に処理する
+async function mapLimit(list, limit, fn) {
+  const out = new Array(list.length);
+  let next = 0;
+  await Promise.all(Array.from({ length: limit }, async () => {
+    while (next < list.length) {
+      const i = next++;
+      out[i] = await fn(list[i], i);
+    }
+  }));
+  return out;
+}
+
+async function fillDescriptions(items) {
+  const targets = items.filter((it) => !it.desc);
+  if (!targets.length) return;
+  let resolved = 0;
+  let got = 0;
+  await mapLimit(targets, 6, async (it) => {
+    let url = it.link;
+    if (url.includes('news.google.com')) {
+      const real = await resolveGoogleUrl(url);
+      if (!real) return;
+      resolved++;
+      url = real;
+      it.link = real; // 元の記事に直接飛べるようにする
+    }
+    const { desc } = await fetchDescription(url);
+    if (desc) {
+      it.rawDesc = desc;
+    }
+  });
+  // サイト共通の決まり文句（どの記事でも同じ説明文）は使わない
+  const counts = new Map();
+  for (const it of targets) if (it.rawDesc) counts.set(it.rawDesc, (counts.get(it.rawDesc) || 0) + 1);
+  for (const it of targets) {
+    const d = it.rawDesc;
+    delete it.rawDesc;
+    if (!d || counts.get(d) > 1 || d.length < 25) continue;
+    if (similarity(bigrams(normalize(d)), bigrams(normalize(it.title))) > 0.85 && d.length < it.title.length + 15) continue;
+    if (/公式サイト|ニュースサイト|最新ニュース|をお届け|ホームページ|県紙|地方紙/.test(d)) continue;
+    // 見出しとほとんど言葉がかぶらない説明文は、サイト共通の紹介文の可能性が高い
+    if (similarity(bigrams(normalize(d)), bigrams(normalize(it.title))) < 0.15) continue;
+    it.desc = d.length > 220 ? d.slice(0, 220) + '…' : d;
+    got++;
+  }
+  console.log(`概要の追加: Google転送の解決 ${resolved}件 / 概要を取得 ${got}件（対象 ${targets.length}件）`);
+}
+
 async function fetchFeed(url) {
   try {
     const res = await fetch(url, {
@@ -223,6 +328,8 @@ async function main() {
     if (it.time && now - it.time > maxAge(it.cat)) return false;
     const ng = it.cat.local ? NG_WORDS_LOCAL : NG_WORDS;
     if (ng.some((w) => it.title.includes(w))) return false;
+    if (/[\[［]\d{3}[\dA-Z][\]］]|[（(]\d{3}[A-Z][)）]/.test(it.title)) return false; // 証券コード付きの開示情報
+    if (NG_SOURCES.some((w) => (it.source || '').includes(w))) return false;
     if (recentLinks.has(it.link)) return false;
     if (recentTitles.some((r) => similarity(r, it.bg) > 0.6)) return false;
     return true;
@@ -287,6 +394,7 @@ async function main() {
     top: top.includes(it.link),
   }));
 
+  await fillDescriptions(items);
   const ai = await enrich(items);
   if (ai?.items) {
     for (const a of ai.items) {

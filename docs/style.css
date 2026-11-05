@@ -125,7 +125,7 @@ main { max-width: 640px; margin: 0 auto; padding: 0 16px; }
 }
 .hero-card .tag { background: rgba(255,255,255,.25); color: #fff; }
 .hero-card h3 { margin: 0; font-size: 18px; line-height: 1.45; font-weight: 900; }
-.hero-card p { margin: 0; font-size: 13px; opacity: .92; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.hero-card p { margin: 0; font-size: 13px; opacity: .92; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
 .hero-card .meta { margin-top: auto; color: rgba(255,255,255,.85); }
 .hero-card.read { filter: saturate(.55); }
 
@@ -163,7 +163,7 @@ main { max-width: 640px; margin: 0 auto; padding: 0 16px; }
 }
 .card:active { transform: scale(.985); }
 .card h3 { margin: 4px 0 4px; font-size: 16px; line-height: 1.5; font-weight: 700; }
-.card .sum { margin: 0 0 6px; font-size: 13.5px; color: var(--ink2); }
+.card .sum { margin: 2px 0 8px; font-size: 14px; line-height: 1.65; color: var(--ink2); display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
 .card.read { opacity: .62; }
 .card.read h3::after { content: " ✓"; color: var(--c-science); font-size: 13px; }
 .card .star { position: absolute; right: 10px; top: 10px; font-size: 18px; }
