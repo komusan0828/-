@@ -24,8 +24,9 @@ function jstNow() {
 }
 function slotOf(hour) {
   if (process.env.NEWS_SLOT) return process.env.NEWS_SLOT;
-  if (hour < 10) return 'am';
-  if (hour < 16) return 'noon';
+  // 手動で動かしたときの目安（予約の実行はワークフローが NEWS_SLOT で指定する）
+  if (hour < 9) return 'am';
+  if (hour < 15) return 'noon';
   return 'pm';
 }
 const SLOT_LABEL = { am: '朝', noon: '昼', pm: '夜' };
