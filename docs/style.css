@@ -253,6 +253,7 @@ main { max-width: 640px; margin: 0 auto; padding: 0 16px; }
 @keyframes up { from { transform: translateY(100%); } }
 @keyframes fade { from { opacity: 0; } }
 .grip { width: 44px; height: 5px; border-radius: 99px; background: var(--line); margin: 4px auto 12px; }
+.sheet { will-change: transform; }
 .close { position: sticky; top: 0; float: right; width: 34px; height: 34px; border-radius: 50%; background: var(--card); box-shadow: var(--shadow); font-size: 14px; color: var(--ink2); margin: -6px -4px 0 0; }
 .sheet h2 { font-size: 20px; line-height: 1.5; margin: 8px 0 10px; font-weight: 900; }
 .box {
