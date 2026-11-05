@@ -1,6 +1,6 @@
 // ニュースを集めて「朝・昼・夜」の1号ぶんを作るスクリプト
 // 使い方: node scripts/build-edition.mjs
-// 環境変数 ANTHROPIC_API_KEY があれば、AI が「ざっくり要約・話のネタ・用語解説」を付ける
+// 環境変数 GEMINI_API_KEY（無料）か ANTHROPIC_API_KEY があれば、AI が要約・ポイント・話のネタを付ける
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import Anthropic from '@anthropic-ai/sdk';
@@ -299,8 +299,7 @@ async function askClaude(client, prompt, schema) {
   return res.parsed_output;
 }
 
-// ---- 無料: GitHub Models（GitHub Actions の GITHUB_TOKEN で使える。1日の回数に上限あり） ----
-const FREE_MODEL = process.env.NEWS_FREE_MODEL || 'openai/gpt-4o-mini';
+// ---- 無料: Google Gemini（Google AI Studio の無料枠。GEMINI_API_KEY が必要、カード登録は不要） ----
 const LooseNote = z.object({
   i: z.coerce.number().int(),
   summary: z.string().min(1),
@@ -316,45 +315,67 @@ const JSON_SHAPE_BATCH = `返答は次の形の JSON オブジェクトだけに
 term が無いときは null にしてください。`;
 const JSON_SHAPE_INTRO = '返答は {"intro":"..."} の形の JSON オブジェクトだけにしてください。';
 
+const GEMINI_API = 'https://generativelanguage.googleapis.com/v1beta';
+let geminiModel = process.env.NEWS_GEMINI_MODEL || 'gemini-2.5-flash';
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-async function askGitHub(prompt, schema) {
-  for (let attempt = 0; attempt < 4; attempt++) {
-    const res = await fetch('https://models.github.ai/inference/chat/completions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      body: JSON.stringify({
-        model: FREE_MODEL,
-        messages: [
-          { role: 'system', content: 'あなたは日本語のニュース編集者です。指示された形の JSON オブジェクトだけを返します。' },
-          { role: 'user', content: prompt },
-        ],
-        response_format: { type: 'json_object' },
-        max_tokens: 3500,
-        temperature: 0.3,
-      }),
-      signal: AbortSignal.timeout(120000),
+// 指定のモデルが使えるか確認し、無ければ使える「flash」系のいちばん新しいものを選ぶ
+async function chooseGeminiModel() {
+  try {
+    const res = await fetch(`${GEMINI_API}/models?pageSize=200`, {
+      headers: { 'x-goog-api-key': process.env.GEMINI_API_KEY },
+      signal: AbortSignal.timeout(20000),
     });
-    if (res.status === 429) {
-      // 混み合っているときは少し待ってやり直す
-      const wait = Math.min(90, Number(res.headers.get('retry-after')) || 20 * (attempt + 1));
+    if (!res.ok) {
+      console.log(`  Gemini のモデル一覧を取得できませんでした (HTTP ${res.status}): ${(await res.text()).slice(0, 200)}`);
+      return;
+    }
+    const models = ((await res.json()).models || [])
+      .filter((m) => (m.supportedGenerationMethods || []).includes('generateContent'))
+      .map((m) => m.name.replace(/^models\//, ''));
+    if (models.includes(geminiModel)) return;
+    const flash = models
+      .filter((n) => /^gemini-[\d.]+-flash$/.test(n))
+      .sort((a, b) => parseFloat(b.slice(7)) - parseFloat(a.slice(7)));
+    const pick = flash[0] || models.find((n) => n.includes('flash') && !/image|tts|live|audio/.test(n));
+    if (pick) {
+      console.log(`  ${geminiModel} は使えないので ${pick} を使います`);
+      geminiModel = pick;
+    }
+  } catch (e) {
+    console.log(`  Gemini のモデル確認に失敗: ${e.message}`);
+  }
+}
+
+async function askGemini(prompt, schema) {
+  for (let attempt = 0; attempt < 4; attempt++) {
+    const res = await fetch(`${GEMINI_API}/models/${geminiModel}:generateContent`, {
+      method: 'POST',
+      headers: { 'x-goog-api-key': process.env.GEMINI_API_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: 'あなたは日本語のニュース編集者です。指示された形の JSON オブジェクトだけを返します。' }] },
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        generationConfig: { responseMimeType: 'application/json', temperature: 0.3, maxOutputTokens: 16384 },
+      }),
+      signal: AbortSignal.timeout(180000),
+    });
+    if (res.status === 429 || res.status === 503) {
+      // 混み合っている・回数制限のときは少し待ってやり直す
+      const wait = Number(process.env.NEWS_RETRY_WAIT_SEC) || 30 * (attempt + 1);
       console.log(`  （混雑のため ${wait} 秒待ちます）`);
       await sleep(wait * 1000);
       continue;
     }
     const raw = await res.text();
     if (!res.ok) throw new Error(`HTTP ${res.status} ${raw.slice(0, 200)}`);
-    let data;
+    let text = '';
     try {
-      data = JSON.parse(raw);
-    } catch {
-      throw new Error(`想定外の返事 (HTTP ${res.status}, ${res.headers.get('content-type')}, ${res.url}): ${raw.slice(0, 120)}`);
+      const data = JSON.parse(raw);
+      text = (data.candidates?.[0]?.content?.parts || []).map((p) => p.text || '').join('');
+      if (!text) throw new Error(`返事が空でした（${data.candidates?.[0]?.finishReason || data.promptFeedback?.blockReason || '理由不明'}）`);
+    } catch (e) {
+      throw new Error(e.message.startsWith('返事') ? e.message : `想定外の返事: ${raw.slice(0, 120)}`);
     }
-    const text = data.choices?.[0]?.message?.content || '';
     let json;
     try {
       json = JSON.parse(text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1));
@@ -368,23 +389,7 @@ async function askGitHub(prompt, schema) {
   throw new Error('混雑が続いたのであきらめました');
 }
 
-// 動作確認用: 使える無料 AI の一覧をログに出す
-async function logGitHubCatalog() {
-  try {
-    const res = await fetch('https://models.github.ai/catalog/models', {
-      headers: { Authorization: `Bearer ${process.env.GITHUB_TOKEN}`, Accept: 'application/json' },
-      signal: AbortSignal.timeout(20000),
-    });
-    const raw = await res.text();
-    let ids = raw.slice(0, 200);
-    try { ids = JSON.parse(raw).map((m) => `${m.id}${m.rate_limit_tier ? `(${m.rate_limit_tier})` : ''}`).join(', '); } catch {}
-    console.log(`  使える AI 一覧 (HTTP ${res.status}): ${ids}`);
-  } catch (e) {
-    console.log(`  AI 一覧の取得に失敗: ${e.message}`);
-  }
-}
-
-// 使える AI を選ぶ（有料の Claude キーがあればそちら、無ければ GitHub の無料枠）
+// 使える AI を選ぶ（Claude のキーがあればそれ、無ければ Gemini の無料枠）
 function pickProvider() {
   if (process.env.ANTHROPIC_API_KEY) {
     const client = new Anthropic();
@@ -395,14 +400,18 @@ function pickProvider() {
       ask: (prompt, schema) => askClaude(client, prompt, schema),
     };
   }
-  if (process.env.GITHUB_TOKEN && process.env.NEWS_FREE_AI !== 'off') {
-    // 無料枠は1回に送れる量が少ないので、3本ずつ・本文は短めに
+  if (process.env.GEMINI_API_KEY) {
+    // 無料枠は1分あたりの回数が少ないので、1件ずつ順番に、間をあけて頼む
     return {
-      label: `GitHub Models 無料枠（${FREE_MODEL}）`,
-      batchSize: 3, bodyLimit: 1200, concurrency: 2, shapeBatch: JSON_SHAPE_BATCH, shapeIntro: JSON_SHAPE_INTRO,
+      get label() { return `Gemini 無料枠（${geminiModel}）`; },
+      batchSize: 8, bodyLimit: 2000, concurrency: 1, shapeBatch: JSON_SHAPE_BATCH, shapeIntro: JSON_SHAPE_INTRO,
       batchSchema: LooseBatch, introSchema: Intro,
-      ask: askGitHub,
-      check: logGitHubCatalog,
+      check: chooseGeminiModel,
+      ask: async (prompt, schema) => {
+        const out = await askGemini(prompt, schema);
+        await sleep(Number(process.env.NEWS_AI_GAP_MS ?? 7000));
+        return out;
+      },
     };
   }
   return null;
@@ -414,8 +423,8 @@ async function enrich(items) {
     console.log('使える AI が無いので AI 要約はスキップします（記事の書き出しを表示します）');
     return null;
   }
-  console.log(`AI 要約を作ります（${ai.label}）`);
   if (ai.check) await ai.check();
+  console.log(`AI 要約を作ります（${ai.label}）`);
 
   // カテゴリごとに、決まった本数ずつまとめて頼む
   const groups = new Map();

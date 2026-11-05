@@ -15,7 +15,6 @@ permissions:
   contents: write
   pages: write
   id-token: write
-  models: read  # GitHub の無料 AI（GitHub Models）を使うため
 
 concurrency:
   group: news
@@ -41,9 +40,9 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           # 使う AI モデル（Settings → Secrets and variables → Actions → Variables で NEWS_AI_MODEL を設定すると変更できます）
           NEWS_AI_MODEL: ${{ vars.NEWS_AI_MODEL }}
-          # ANTHROPIC_API_KEY が無いときは GitHub の無料 AI を使う（使う AI は変数 NEWS_FREE_MODEL で変更可）
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NEWS_FREE_MODEL: ${{ vars.NEWS_FREE_MODEL }}
+          # 無料の Google Gemini を使うためのキー（ANTHROPIC_API_KEY があればそちらを優先）
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          NEWS_GEMINI_MODEL: ${{ vars.NEWS_GEMINI_MODEL }}
         run: node scripts/build-edition.mjs
 
       - name: 集めたデータを保存
