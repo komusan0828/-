@@ -346,8 +346,14 @@ async function askGitHub(prompt, schema) {
       await sleep(wait * 1000);
       continue;
     }
-    if (!res.ok) throw new Error(`HTTP ${res.status} ${(await res.text()).slice(0, 200)}`);
-    const data = await res.json();
+    const raw = await res.text();
+    if (!res.ok) throw new Error(`HTTP ${res.status} ${raw.slice(0, 200)}`);
+    let data;
+    try {
+      data = JSON.parse(raw);
+    } catch {
+      throw new Error(`想定外の返事 (HTTP ${res.status}, ${res.headers.get('content-type')}, ${res.url}): ${raw.slice(0, 120)}`);
+    }
     const text = data.choices?.[0]?.message?.content || '';
     let json;
     try {
@@ -360,6 +366,22 @@ async function askGitHub(prompt, schema) {
     return parsed.data;
   }
   throw new Error('混雑が続いたのであきらめました');
+}
+
+// 動作確認用: 使える無料 AI の一覧をログに出す
+async function logGitHubCatalog() {
+  try {
+    const res = await fetch('https://models.github.ai/catalog/models', {
+      headers: { Authorization: `Bearer ${process.env.GITHUB_TOKEN}`, Accept: 'application/json' },
+      signal: AbortSignal.timeout(20000),
+    });
+    const raw = await res.text();
+    let ids = raw.slice(0, 200);
+    try { ids = JSON.parse(raw).map((m) => `${m.id}${m.rate_limit_tier ? `(${m.rate_limit_tier})` : ''}`).join(', '); } catch {}
+    console.log(`  使える AI 一覧 (HTTP ${res.status}): ${ids}`);
+  } catch (e) {
+    console.log(`  AI 一覧の取得に失敗: ${e.message}`);
+  }
 }
 
 // 使える AI を選ぶ（有料の Claude キーがあればそちら、無ければ GitHub の無料枠）
@@ -380,6 +402,7 @@ function pickProvider() {
       batchSize: 3, bodyLimit: 1200, concurrency: 2, shapeBatch: JSON_SHAPE_BATCH, shapeIntro: JSON_SHAPE_INTRO,
       batchSchema: LooseBatch, introSchema: Intro,
       ask: askGitHub,
+      check: logGitHubCatalog,
     };
   }
   return null;
@@ -392,6 +415,7 @@ async function enrich(items) {
     return null;
   }
   console.log(`AI 要約を作ります（${ai.label}）`);
+  if (ai.check) await ai.check();
 
   // カテゴリごとに、決まった本数ずつまとめて頼む
   const groups = new Map();
