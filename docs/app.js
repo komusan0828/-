@@ -75,11 +75,11 @@
     const h = new Date(Date.now() + 9 * 3600e3).getUTCHours();
     $('#greet').textContent = h < 5 ? 'こんばんは 🌙' : h < 11 ? 'おはようございます ☀️' : h < 17 ? 'こんにちは 🌤️' : 'こんばんは 🌙';
     const date = edition?.date || todayJst();
-    $('#date-text').textContent = fmtDate(date);
+    ($('#date-text') || $('#date')).textContent = fmtDate(date);
     const dates = editionDates();
     const i = dates.indexOf(date);
-    $('#prev-day').disabled = i < 0 || i >= dates.length - 1;
-    $('#next-day').disabled = i <= 0;
+    if ($('#prev-day')) $('#prev-day').disabled = i < 0 || i >= dates.length - 1;
+    if ($('#next-day')) $('#next-day').disabled = i <= 0;
     $('#slots').innerHTML = SLOTS.map((s) => {
       const e = index.find((x) => x.date === date && x.slot === s.id);
       const on = edition && edition.slot === s.id && edition.date === date;
@@ -381,6 +381,7 @@
     window.scrollTo({ top: 0 });
     show('home');
     const d = $('#date-text');
+    if (!d) return;
     d.classList.remove('slide-l', 'slide-r');
     void d.offsetWidth;
     if (dir) d.classList.add(dir > 0 ? 'slide-l' : 'slide-r');
@@ -595,6 +596,21 @@
     const latest = index[0]?.id;
     if (latest) await openEdition(latest, { scroll: false });
     else renderAll();
-    if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+    // 新しい版が公開されたら自動で入れ替える（開いたとき・アプリに戻ってきたときに確認）
+    if ('serviceWorker' in navigator) {
+      const hadController = !!navigator.serviceWorker.controller;
+      let reloaded = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!hadController || reloaded) return;
+        reloaded = true;
+        location.reload();
+      });
+      navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then((reg) => {
+        reg.update().catch(() => {});
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'visible') reg.update().catch(() => {});
+        });
+      }).catch(() => {});
+    }
   })();
 })();
