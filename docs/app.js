@@ -148,7 +148,8 @@
       present.map((c) => `<button class="chip${filter === c.id ? ' on' : ''}" data-cat="${c.id}" data-filter="${c.id}">${c.emoji} ${esc(c.name)}</button>`).join('');
 
     const groups = (filter === 'all' ? present : present.filter((c) => c.id === filter));
-    $('#list').innerHTML = groups.map((c) => {
+    const hint = store.get('swiped', false) ? '' : '<p class="swipe-hint" id="swipe-hint">👈 左右にスワイプでカテゴリを移動できます 👉</p>';
+    $('#list').innerHTML = hint + groups.map((c) => {
       const list = items.filter((i) => i.category === c.id);
       const done = list.filter((i) => readIds.has(i.id)).length;
       return `<div class="cat-head" data-cat="${c.id}"><span class="dot">${c.emoji}</span>${esc(c.name)}<span class="count">${done}/${list.length}</span></div>` +
@@ -313,10 +314,9 @@
     if (t.dataset.save) return toggleSave(t.dataset.save);
     if (t.dataset.view) return show(t.dataset.view);
     if (t.dataset.filter) {
-      filter = t.dataset.filter;
-      renderHome();
-      const chips = $('#chips');
-      window.scrollTo({ top: chips.offsetTop - 4, behavior: 'smooth' });
+      const order = filterOrder();
+      const dir = Math.sign(order.indexOf(t.dataset.filter) - order.indexOf(filter));
+      setFilter(t.dataset.filter, dir);
       return;
     }
     if (t.classList.contains('slot') && t.dataset.id) return openEdition(t.dataset.id);
@@ -324,6 +324,56 @@
     if ((t.classList.contains('card') || t.classList.contains('hero-card')) && t.dataset.id) return openSheet(t.dataset.id);
   });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSheet(); });
+
+  // ---------- 左右スワイプでカテゴリを移動 ----------
+  function filterOrder() {
+    const items = edition?.items || [];
+    return ['all', ...cats.filter((c) => c.id !== 'saitama' && items.some((i) => i.category === c.id)).map((c) => c.id)];
+  }
+  function setFilter(next, dir = 0) {
+    if (next === filter) return;
+    filter = next;
+    renderHome();
+    const list = $('#list');
+    list.classList.remove('slide-l', 'slide-r');
+    void list.offsetWidth;
+    if (dir) list.classList.add(dir > 0 ? 'slide-l' : 'slide-r');
+    // 選んだカテゴリのボタンが見えるように横に寄せる
+    const chips = $('#chips');
+    const chip = chips.querySelector(`[data-filter="${next}"]`);
+    if (chip) chips.scrollTo({ left: chip.offsetLeft - (chips.clientWidth - chip.offsetWidth) / 2, behavior: 'smooth' });
+    // カテゴリの先頭が見える位置へ
+    if (window.scrollY > chips.offsetTop) window.scrollTo({ top: chips.offsetTop - 4 });
+  }
+  function nudge(dir) {
+    const list = $('#list');
+    list.classList.remove('nudge-l', 'nudge-r');
+    void list.offsetWidth;
+    list.classList.add(dir > 0 ? 'nudge-l' : 'nudge-r');
+  }
+  let sw = null;
+  $('#view-home').addEventListener('touchstart', (e) => {
+    const t = e.touches[0];
+    // 横に動く「いちばんの話題」とカテゴリボタン、画面の左端（戻る操作）は対象外
+    if (e.touches.length > 1 || e.target.closest('.hero, .chips') || t.clientX < 24) { sw = null; return; }
+    sw = { x: t.clientX, y: t.clientY, at: Date.now() };
+  }, { passive: true });
+  $('#view-home').addEventListener('touchend', (e) => {
+    if (!sw) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - sw.x;
+    const dy = t.clientY - sw.y;
+    const quick = Date.now() - sw.at < 700;
+    sw = null;
+    if (!quick || Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+    const order = filterOrder();
+    const dir = dx < 0 ? 1 : -1; // 左へスワイプ＝次のカテゴリ
+    const i = order.indexOf(filter) + dir;
+    if (i < 0 || i >= order.length) return nudge(dir);
+    setFilter(order[i], dir);
+    store.set('swiped', true);
+    $('#swipe-hint')?.remove();
+  }, { passive: true });
 
   // シートを下にスワイプで閉じる
   let startY = null;
