@@ -36,7 +36,7 @@ jobs:
 
       - name: ニュースを集める
         if: github.event_name != 'push'
-        timeout-minutes: 15
+        timeout-minutes: 20
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           # 使う AI モデル（Settings → Secrets and variables → Actions → Variables で NEWS_AI_MODEL を設定すると変更できます）
