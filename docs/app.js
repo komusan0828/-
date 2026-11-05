@@ -351,29 +351,61 @@
     void list.offsetWidth;
     list.classList.add(dir > 0 ? 'nudge-l' : 'nudge-r');
   }
+  // 指の動きに合わせて一覧を横に動かし、離したときに十分動いていればカテゴリを切り替える
   let sw = null;
-  $('#view-home').addEventListener('touchstart', (e) => {
+  const home = $('#view-home');
+  const listEl = $('#list');
+  function resetDrag(animate) {
+    listEl.style.transition = animate ? 'transform .2s ease, opacity .2s ease' : '';
+    listEl.style.transform = '';
+    listEl.style.opacity = '';
+    if (animate) setTimeout(() => { listEl.style.transition = ''; }, 220);
+  }
+  home.addEventListener('touchstart', (e) => {
     const t = e.touches[0];
     // 横に動く「いちばんの話題」とカテゴリボタン、画面の左端（戻る操作）は対象外
-    if (e.touches.length > 1 || e.target.closest('.hero, .chips') || t.clientX < 24) { sw = null; return; }
-    sw = { x: t.clientX, y: t.clientY, at: Date.now() };
+    if (e.touches.length > 1 || e.target.closest('.hero, .chips') || t.clientX < 16) { sw = null; return; }
+    sw = { x: t.clientX, y: t.clientY, lock: null, dx: 0 };
   }, { passive: true });
-  $('#view-home').addEventListener('touchend', (e) => {
+  home.addEventListener('touchmove', (e) => {
     if (!sw) return;
-    const t = e.changedTouches[0];
+    const t = e.touches[0];
     const dx = t.clientX - sw.x;
     const dy = t.clientY - sw.y;
-    const quick = Date.now() - sw.at < 700;
+    if (!sw.lock) {
+      if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
+      sw.lock = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y'; // 最初に動いた向きで、横スワイプか縦スクロールかを決める
+    }
+    if (sw.lock !== 'x') return;
+    e.preventDefault(); // 横に動かしている間は縦にスクロールさせない
+    sw.dx = dx;
+    const order = filterOrder();
+    const atEdge = (dx > 0 && order.indexOf(filter) === 0) || (dx < 0 && order.indexOf(filter) === order.length - 1);
+    const move = atEdge ? dx * 0.15 : dx * 0.6;
+    listEl.style.transition = 'none';
+    listEl.style.transform = `translateX(${move}px)`;
+    listEl.style.opacity = String(1 - Math.min(Math.abs(move) / 500, 0.35));
+  }, { passive: false });
+  const endSwipe = () => {
+    if (!sw) return;
+    const { lock, dx } = sw;
     sw = null;
-    if (!quick || Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+    if (lock !== 'x') return;
     const order = filterOrder();
     const dir = dx < 0 ? 1 : -1; // 左へスワイプ＝次のカテゴリ
     const i = order.indexOf(filter) + dir;
-    if (i < 0 || i >= order.length) return nudge(dir);
+    if (Math.abs(dx) < 50 || i < 0 || i >= order.length) {
+      resetDrag(true);
+      if (Math.abs(dx) >= 50) nudge(dir);
+      return;
+    }
+    resetDrag(false);
     setFilter(order[i], dir);
     store.set('swiped', true);
     $('#swipe-hint')?.remove();
-  }, { passive: true });
+  };
+  home.addEventListener('touchend', endSwipe, { passive: true });
+  home.addEventListener('touchcancel', () => { sw = null; resetDrag(true); }, { passive: true });
 
   // シートを下にスワイプで閉じる
   let startY = null;
