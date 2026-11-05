@@ -10,7 +10,7 @@
 
 ## しくみ
 
-GitHub Actions が日本時間 6:30 / 11:30 / 18:30 ごろに NHK・Yahoo!ニュース・Google ニュースの RSS を集め、
+GitHub Actions が朝・昼・夜（日本時間 6:30 / 11:00 / 16:30 までに届くよう早めに開始）に NHK・Yahoo!ニュース・Google ニュースの RSS を集め、
 `docs/data/` に保存して GitHub Pages で公開します。サーバー代はかかりません。
 
 ## はじめかた（最初の1回だけ）

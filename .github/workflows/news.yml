@@ -2,13 +2,16 @@ name: ニュースを集めて公開
 
 on:
   schedule:
-    # 朝: 日本時間 5:13 に開始（GitHub の予約実行は40分〜1時間遅れることがあるため、6:30 までに届くよう早めに）
+    # GitHub の予約実行は40分〜1時間遅れることがあるため、届けたい時刻より早めに開始し、予備も入れる
+    # 朝（6:30 までに）: 5:13 開始、予備 5:53
     - cron: '13 20 * * *'
-    # 朝の予備: 5:53 に、まだ朝の号ができていなければ作る
     - cron: '53 20 * * *'
-    # 昼 11:30 / 夜 18:30 ごろ
-    - cron: '30 2 * * *'
-    - cron: '30 9 * * *'
+    # 昼（11:00 までに）: 9:43 開始、予備 10:23
+    - cron: '43 0 * * *'
+    - cron: '23 1 * * *'
+    # 夜（16:30 までに）: 15:13 開始、予備 15:53
+    - cron: '13 6 * * *'
+    - cron: '53 6 * * *'
   workflow_dispatch: {}
   push:
     branches: [main]
@@ -48,7 +51,9 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           NEWS_GEMINI_MODEL: ${{ vars.NEWS_GEMINI_MODEL }}
           # 予備の実行では、その号がもうできていれば何もしない
-          NEWS_ONLY_IF_MISSING: ${{ github.event.schedule == '53 20 * * *' && '1' || '' }}
+          NEWS_ONLY_IF_MISSING: ${{ (github.event.schedule == '53 20 * * *' || github.event.schedule == '23 1 * * *' || github.event.schedule == '53 6 * * *') && '1' || '' }}
+          # どの予約の実行かで、朝・昼・夜のどの号かを決める（手動実行のときは時刻で判断）
+          NEWS_SLOT: ${{ (github.event.schedule == '13 20 * * *' || github.event.schedule == '53 20 * * *') && 'am' || (github.event.schedule == '43 0 * * *' || github.event.schedule == '23 1 * * *') && 'noon' || (github.event.schedule == '13 6 * * *' || github.event.schedule == '53 6 * * *') && 'pm' || '' }}
         run: node scripts/build-edition.mjs
 
       - name: 集めたデータを保存
