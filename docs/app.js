@@ -75,7 +75,11 @@
     const h = new Date(Date.now() + 9 * 3600e3).getUTCHours();
     $('#greet').textContent = h < 5 ? 'こんばんは 🌙' : h < 11 ? 'おはようございます ☀️' : h < 17 ? 'こんにちは 🌤️' : 'こんばんは 🌙';
     const date = edition?.date || todayJst();
-    $('#date').textContent = fmtDate(date);
+    $('#date-text').textContent = fmtDate(date);
+    const dates = editionDates();
+    const i = dates.indexOf(date);
+    $('#prev-day').disabled = i < 0 || i >= dates.length - 1;
+    $('#next-day').disabled = i <= 0;
     $('#slots').innerHTML = SLOTS.map((s) => {
       const e = index.find((x) => x.date === date && x.slot === s.id);
       const on = edition && edition.slot === s.id && edition.date === date;
@@ -346,6 +350,11 @@
       try { await navigator.clipboard.writeText(t.dataset.copy); toast('コピーしました'); } catch { toast('コピーできませんでした'); }
       return;
     }
+    if (t.id === 'date') return openCalendar((edition?.date || todayJst()).slice(0, 7));
+    if (t.id === 'prev-day') return goDay(-1);
+    if (t.id === 'next-day') return goDay(1);
+    if (t.dataset.calMonth) return openCalendar(t.dataset.calMonth);
+    if (t.dataset.day) { await openDay(t.dataset.day); return closeSheet(); }
     if (t.dataset.save) return toggleSave(t.dataset.save);
     if (t.dataset.view) return show(t.dataset.view);
     if (t.dataset.filter) {
@@ -357,6 +366,106 @@
     if ((t.classList.contains('card') || t.classList.contains('hero-card')) && t.dataset.id) return openSheet(t.dataset.id);
   });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSheet(); });
+
+  // ---------- 日付の移動（前後の日・カレンダー） ----------
+  // 号がある日付（新しい順）
+  function editionDates() {
+    return [...new Set(index.map((e) => e.date))].sort().reverse();
+  }
+  // その日の号を開く（いま見ている朝・昼・夜と同じ号があればそれ、無ければその日のいちばん新しい号）
+  async function openDay(date, dir = 0) {
+    const eds = index.filter((e) => e.date === date);
+    if (!eds.length) return;
+    const pick = eds.find((e) => e.slot === edition?.slot) || eds.sort((a, b) => (a.id < b.id ? 1 : -1))[0];
+    await openEdition(pick.id, { scroll: false });
+    window.scrollTo({ top: 0 });
+    show('home');
+    const d = $('#date-text');
+    d.classList.remove('slide-l', 'slide-r');
+    void d.offsetWidth;
+    if (dir) d.classList.add(dir > 0 ? 'slide-l' : 'slide-r');
+  }
+  // dir: -1 = 前の日（古い）、1 = 次の日（新しい）
+  async function goDay(dir) {
+    const dates = editionDates();
+    const i = dates.indexOf(edition?.date);
+    const next = dates[i - dir];
+    if (i < 0 || !next) { toast(dir < 0 ? 'これより前の号はありません' : 'これが最新の号です'); return; }
+    await openDay(next, dir);
+  }
+  // 日付のあたりを左右にスワイプして前後の日へ（右へ払う＝前の日）
+  let daySwipe = null;
+  $('.top').addEventListener('touchstart', (e) => {
+    const t = e.touches[0];
+    daySwipe = e.touches.length === 1 && t.clientX > 16 ? { x: t.clientX, y: t.clientY } : null;
+  }, { passive: true });
+  $('.top').addEventListener('touchend', (e) => {
+    if (!daySwipe) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - daySwipe.x;
+    const dy = t.clientY - daySwipe.y;
+    daySwipe = null;
+    if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy) * 1.3) return;
+    goDay(dx > 0 ? -1 : 1);
+  }, { passive: true });
+
+  // カレンダー（記事詳細と同じ、下から出るシートに表示）
+  function openCalendar(month) {
+    const [y, m] = month.split('-').map(Number);
+    const first = new Date(Date.UTC(y, m - 1, 1));
+    const days = new Date(Date.UTC(y, m, 0)).getUTCDate();
+    const lead = first.getUTCDay();
+    const months = [...new Set(index.map((e) => e.date.slice(0, 7)))].sort();
+    const prevM = months.filter((x) => x < month).pop();
+    const nextM = months.find((x) => x > month);
+    const cur = edition?.date;
+    const today = todayJst();
+    const cells = [];
+    for (let k = 0; k < lead; k++) cells.push('<span class="cal-cell empty"></span>');
+    for (let d = 1; d <= days; d++) {
+      const date = `${month}-${String(d).padStart(2, '0')}`;
+      const eds = index.filter((e) => e.date === date);
+      const dots = SLOTS.map((s) => `<i class="${eds.some((e) => e.slot === s.id) ? 'on' : ''}"></i>`).join('');
+      const cls = ['cal-cell', date === cur ? 'sel' : '', date === today ? 'today' : '', readDays.has(date) ? 'read' : '', eds.length ? '' : 'none'].join(' ');
+      cells.push(eds.length
+        ? `<button class="${cls}" data-day="${date}"><b>${d}</b><span class="dots">${dots}</span></button>`
+        : `<span class="${cls}"><b>${d}</b></span>`);
+    }
+    const html = `<div class="cal" id="cal" data-month="${month}">
+      <div class="cal-head">
+        <button class="cal-nav" ${prevM ? `data-cal-month="${prevM}"` : 'disabled'} aria-label="前の月">‹</button>
+        <h2>${y}年${m}月</h2>
+        <button class="cal-nav" ${nextM ? `data-cal-month="${nextM}"` : 'disabled'} aria-label="次の月">›</button>
+      </div>
+      <div class="cal-week">${wd.map((w, i) => `<span class="${i === 0 ? 'sun' : i === 6 ? 'sat' : ''}">${w}</span>`).join('')}</div>
+      <div class="cal-grid">${cells.join('')}</div>
+      <p class="cal-note"><i class="on"></i> 号がある日（点は朝・昼・夜）　<span class="cal-read-mark"></span> 読んだ日</p>
+    </div>`;
+    const sheet = $('#sheet');
+    const wasOpen = !sheet.hidden;
+    $('#sheet-body').innerHTML = html;
+    if (!wasOpen) {
+      sheet.hidden = false;
+      $('#backdrop').hidden = false;
+      sheet.scrollTop = 0;
+      document.body.style.overflow = 'hidden';
+    }
+  }
+  // カレンダーを左右にスワイプして月を移動
+  let calSwipe = null;
+  $('#sheet').addEventListener('touchstart', (e) => {
+    calSwipe = e.target.closest('#cal') ? { x: e.touches[0].clientX, y: e.touches[0].clientY } : null;
+  }, { passive: true });
+  $('#sheet').addEventListener('touchend', (e) => {
+    if (!calSwipe) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - calSwipe.x;
+    const dy = t.clientY - calSwipe.y;
+    calSwipe = null;
+    if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy) * 1.3) return;
+    const btn = document.querySelectorAll('#cal .cal-nav')[dx > 0 ? 0 : 1];
+    if (btn?.dataset.calMonth) openCalendar(btn.dataset.calMonth);
+  }, { passive: true });
 
   // ---------- 記事一覧を左右にめくってカテゴリを移動 ----------
   function filterOrder() {
@@ -423,7 +532,7 @@
   sheetEl.addEventListener('touchstart', (e) => {
     if (sheetClosing || e.touches.length > 1) { pull = null; return; }
     const y = e.touches[0].clientY;
-    pull = { y, samples: [[performance.now(), y]], dy: 0, active: false, atTop: sheetEl.scrollTop <= 0 };
+    pull = { x: e.touches[0].clientX, y, samples: [[performance.now(), y]], dy: 0, active: false, atTop: sheetEl.scrollTop <= 0 };
   }, { passive: true });
   sheetEl.addEventListener('touchmove', (e) => {
     if (!pull) return;
@@ -432,7 +541,8 @@
       const dy = y - pull.y;
       if (Math.abs(dy) < 6) return;
       // いちばん上で下に引いたときだけシートを動かす。それ以外は中身のスクロール
-      if (dy > 0 && pull.atTop && sheetEl.scrollTop <= 0) pull.active = true;
+      const dx = e.touches[0].clientX - pull.x;
+      if (dy > 0 && dy > Math.abs(dx) && pull.atTop && sheetEl.scrollTop <= 0) pull.active = true;
       else { pull = null; return; }
     }
     e.preventDefault();

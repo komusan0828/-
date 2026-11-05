@@ -23,7 +23,11 @@
     <div class="top-row">
       <div>
         <p class="greet" id="greet">こんにちは</p>
-        <h1 class="date" id="date"></h1>
+        <div class="date-nav" id="date-nav">
+          <button class="day-arrow" id="prev-day" aria-label="前の日">‹</button>
+          <h1 class="date-h"><button class="date" id="date" aria-label="カレンダーを開く"><span id="date-text"></span><span class="cal-ico" aria-hidden="true">▾</span></button></h1>
+          <button class="day-arrow" id="next-day" aria-label="次の日">›</button>
+        </div>
       </div>
       <div class="streak" id="streak" title="連続で読んだ日数"></div>
     </div>
