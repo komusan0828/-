@@ -334,24 +334,44 @@ async function chooseGeminiModel() {
     const models = ((await res.json()).models || [])
       .filter((m) => (m.supportedGenerationMethods || []).includes('generateContent'))
       .map((m) => m.name.replace(/^models\//, ''));
-    if (geminiModel && models.includes(geminiModel)) return;
+    // 混雑時に切り替える候補：flash 系と flash-lite 系を新しい順に
+    const ver = (n) => parseFloat(n.slice(7)) || 0;
     const flash = models
-      .filter((n) => /^gemini-[\d.]+-flash$/.test(n))
-      .sort((a, b) => parseFloat(b.slice(7)) - parseFloat(a.slice(7)));
-    const pick = flash[0] || models.find((n) => n.includes('flash') && !/image|tts|live|audio/.test(n));
-    if (pick) {
-      if (geminiModel) console.log(`  ${geminiModel} は使えないので ${pick} を使います`);
-      geminiModel = pick;
+      .filter((n) => /^gemini-[\d.]+-flash(-lite)?$/.test(n))
+      .sort((a, b) => ver(b) - ver(a) || a.length - b.length);
+    geminiCandidates = [...new Set([...(geminiModel && models.includes(geminiModel) ? [geminiModel] : []), ...flash])];
+    if (!geminiCandidates.length) {
+      const any = models.find((n) => n.includes('flash') && !/image|tts|live|audio/.test(n));
+      if (any) geminiCandidates = [any];
+    }
+    if (geminiCandidates.length) {
+      if (geminiModel && geminiModel !== geminiCandidates[0]) console.log(`  ${geminiModel} は使えないので ${geminiCandidates[0]} を使います`);
+      geminiModel = geminiCandidates[0];
+      console.log(`  混雑時の切り替え候補: ${geminiCandidates.join(', ')}`);
     }
   } catch (e) {
     console.log(`  Gemini のモデル確認に失敗: ${e.message}`);
   }
 }
 
+let geminiCandidates = [];
+// 混雑・時間切れのときは次の候補モデルへ（全員で共有）
+function nextGeminiModel(from, reason) {
+  if (geminiModel !== from) return true; // 別の依頼がもう切り替えた
+  const i = geminiCandidates.indexOf(from);
+  const next = geminiCandidates[i + 1];
+  if (!next) return false;
+  console.log(`  ${from} が${reason}なので ${next} に切り替えます`);
+  geminiModel = next;
+  return true;
+}
 let geminiThinkingLow = true; // 「考える量を少なめに」して速くする（対応していないモデルなら自動で外す）
 async function askGemini(prompt, schema) {
-  for (let attempt = 0; attempt < 4; attempt++) {
-    const res = await fetch(`${GEMINI_API}/models/${geminiModel}:generateContent`, {
+  for (let attempt = 0; attempt < 6; attempt++) {
+    const model = geminiModel;
+    let res;
+    try {
+      res = await fetch(`${GEMINI_API}/models/${model}:generateContent`, {
       method: 'POST',
       headers: { 'x-goog-api-key': process.env.GEMINI_API_KEY, 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -364,8 +384,13 @@ async function askGemini(prompt, schema) {
           ...(geminiThinkingLow ? { thinkingConfig: { thinkingLevel: 'low' } } : {}),
         },
       }),
-      signal: AbortSignal.timeout(120000),
-    });
+      signal: AbortSignal.timeout(90000),
+      });
+    } catch (e) {
+      // 時間切れ：次のモデルで試す
+      if (nextGeminiModel(model, '時間切れ')) continue;
+      throw e;
+    }
     const raw = await res.text();
     if (res.status === 400 && geminiThinkingLow && /thinking/i.test(raw)) {
       geminiThinkingLow = false;
@@ -373,7 +398,9 @@ async function askGemini(prompt, schema) {
     }
     if (res.status === 429 || res.status === 503) {
       // 1日の上限に達したときは待っても無駄なのですぐやめる
-      if (/PerDay|per day|daily/i.test(raw)) throw new Error(`今日の無料枠を使い切りました: ${raw.slice(0, 160)}`);
+      const daily = /PerDay|per day|daily/i.test(raw);
+      if (nextGeminiModel(model, daily ? '今日の無料枠を使い切ったの' : '混雑中')) continue;
+      if (daily) throw new Error(`今日の無料枠を使い切りました: ${raw.slice(0, 160)}`);
       const wait = Number(process.env.NEWS_RETRY_WAIT_SEC) || 15 * (attempt + 1);
       console.log(`  （混雑のため ${wait} 秒待ちます: HTTP ${res.status} ${raw.replace(/\s+/g, ' ').slice(0, 120)}）`);
       await sleep(wait * 1000);
@@ -381,11 +408,13 @@ async function askGemini(prompt, schema) {
     }
     // 「このモデルは提供終了、代わりに〜を使って」と言われたら、そのモデルに切り替えてやり直す
     const suggested = res.status === 404 && raw.match(/use models\/([\w.-]+)/);
-    if (suggested && suggested[1] !== geminiModel) {
-      console.log(`  ${geminiModel} は提供終了とのことなので ${suggested[1]} に切り替えます`);
+    if (suggested && suggested[1] !== model) {
+      console.log(`  ${model} は提供終了とのことなので ${suggested[1]} に切り替えます`);
+      geminiCandidates = [suggested[1], ...geminiCandidates.filter((m) => m !== model && m !== suggested[1])];
       geminiModel = suggested[1];
       continue;
     }
+    if (res.status === 404 && nextGeminiModel(model, '使えないの')) continue;
     if (!res.ok) throw new Error(`HTTP ${res.status} ${raw.slice(0, 200)}`);
     let text = '';
     try {
@@ -423,7 +452,7 @@ function pickProvider() {
     // 無料枠は1分あたりの回数が少ないので、1件ずつ順番に、間をあけて頼む
     return {
       get label() { return `Gemini 無料枠（${geminiModel}）`; },
-      batchSize: 8, bodyLimit: 2000, concurrency: 2, shapeBatch: JSON_SHAPE_BATCH, shapeIntro: JSON_SHAPE_INTRO,
+      batchSize: 4, bodyLimit: 1800, concurrency: 2, shapeBatch: JSON_SHAPE_BATCH, shapeIntro: JSON_SHAPE_INTRO,
       batchSchema: LooseBatch, introSchema: Intro,
       check: chooseGeminiModel,
       ask: async (prompt, schema) => {
