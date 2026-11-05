@@ -1,6 +1,6 @@
 // ニュースを集めて「朝・昼・夜」の1号ぶんを作るスクリプト
 // 使い方: node scripts/build-edition.mjs
-// 環境変数 ANTHROPIC_API_KEY があれば、AI が「ざっくり要約・話のネタ・用語解説」を付ける
+// 環境変数 GEMINI_API_KEY（無料）か ANTHROPIC_API_KEY があれば、AI が要約・ポイント・話のネタを付ける
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import Anthropic from '@anthropic-ai/sdk';
@@ -270,16 +270,11 @@ const FIELDS = `各記事について:
 - emoji: 内容に合う絵文字1つ
 - i: 記事の番号（そのまま返す）`;
 
-function articleText(it, i) {
+function articleText(it, i, bodyLimit) {
   const parts = [`[${i}] ${it.title}（${it.source || '出典不明'}）`];
   if (it.desc) parts.push(`概要: ${it.desc}`);
-  if (it.body) parts.push(`本文:\n${it.body}`);
+  if (it.body) parts.push(`本文:\n${it.body.slice(0, bodyLimit)}`);
   return parts.join('\n');
-}
-
-function aiClient() {
-  if (!process.env.ANTHROPIC_API_KEY) return null;
-  return new Anthropic();
 }
 
 // 安全チェックで断られたときに、別のモデルで自動でやり直す設定（対応モデルだけ）
@@ -290,7 +285,7 @@ function fallbackParams() {
   return {};
 }
 
-async function ask(client, prompt, schema) {
+async function askClaude(client, prompt, schema) {
   const res = await client.beta.messages.parse({
     model: MODEL,
     max_tokens: 16000,
@@ -304,32 +299,156 @@ async function ask(client, prompt, schema) {
   return res.parsed_output;
 }
 
+// ---- 無料: Google Gemini（Google AI Studio の無料枠。GEMINI_API_KEY が必要、カード登録は不要） ----
+const LooseNote = z.object({
+  i: z.coerce.number().int(),
+  summary: z.string().min(1),
+  points: z.array(z.string()).default([]),
+  why: z.string().default(''),
+  talk: z.string().default(''),
+  term: z.object({ word: z.string(), meaning: z.string() }).nullable().optional(),
+  emoji: z.string().default(''),
+});
+const LooseBatch = z.object({ items: z.array(LooseNote) });
+const JSON_SHAPE_BATCH = `返答は次の形の JSON オブジェクトだけにしてください（前後に文章を付けない）:
+{"items":[{"i":0,"summary":"...","points":["...","..."],"why":"...","talk":"...","term":{"word":"...","meaning":"..."},"emoji":"..."}]}
+term が無いときは null にしてください。`;
+const JSON_SHAPE_INTRO = '返答は {"intro":"..."} の形の JSON オブジェクトだけにしてください。';
+
+const GEMINI_API = 'https://generativelanguage.googleapis.com/v1beta';
+let geminiModel = process.env.NEWS_GEMINI_MODEL || 'gemini-2.5-flash';
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// 指定のモデルが使えるか確認し、無ければ使える「flash」系のいちばん新しいものを選ぶ
+async function chooseGeminiModel() {
+  try {
+    const res = await fetch(`${GEMINI_API}/models?pageSize=200`, {
+      headers: { 'x-goog-api-key': process.env.GEMINI_API_KEY },
+      signal: AbortSignal.timeout(20000),
+    });
+    if (!res.ok) {
+      console.log(`  Gemini のモデル一覧を取得できませんでした (HTTP ${res.status}): ${(await res.text()).slice(0, 200)}`);
+      return;
+    }
+    const models = ((await res.json()).models || [])
+      .filter((m) => (m.supportedGenerationMethods || []).includes('generateContent'))
+      .map((m) => m.name.replace(/^models\//, ''));
+    if (models.includes(geminiModel)) return;
+    const flash = models
+      .filter((n) => /^gemini-[\d.]+-flash$/.test(n))
+      .sort((a, b) => parseFloat(b.slice(7)) - parseFloat(a.slice(7)));
+    const pick = flash[0] || models.find((n) => n.includes('flash') && !/image|tts|live|audio/.test(n));
+    if (pick) {
+      console.log(`  ${geminiModel} は使えないので ${pick} を使います`);
+      geminiModel = pick;
+    }
+  } catch (e) {
+    console.log(`  Gemini のモデル確認に失敗: ${e.message}`);
+  }
+}
+
+async function askGemini(prompt, schema) {
+  for (let attempt = 0; attempt < 4; attempt++) {
+    const res = await fetch(`${GEMINI_API}/models/${geminiModel}:generateContent`, {
+      method: 'POST',
+      headers: { 'x-goog-api-key': process.env.GEMINI_API_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: 'あなたは日本語のニュース編集者です。指示された形の JSON オブジェクトだけを返します。' }] },
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        generationConfig: { responseMimeType: 'application/json', temperature: 0.3, maxOutputTokens: 16384 },
+      }),
+      signal: AbortSignal.timeout(180000),
+    });
+    if (res.status === 429 || res.status === 503) {
+      // 混み合っている・回数制限のときは少し待ってやり直す
+      const wait = Number(process.env.NEWS_RETRY_WAIT_SEC) || 30 * (attempt + 1);
+      console.log(`  （混雑のため ${wait} 秒待ちます）`);
+      await sleep(wait * 1000);
+      continue;
+    }
+    const raw = await res.text();
+    if (!res.ok) throw new Error(`HTTP ${res.status} ${raw.slice(0, 200)}`);
+    let text = '';
+    try {
+      const data = JSON.parse(raw);
+      text = (data.candidates?.[0]?.content?.parts || []).map((p) => p.text || '').join('');
+      if (!text) throw new Error(`返事が空でした（${data.candidates?.[0]?.finishReason || data.promptFeedback?.blockReason || '理由不明'}）`);
+    } catch (e) {
+      throw new Error(e.message.startsWith('返事') ? e.message : `想定外の返事: ${raw.slice(0, 120)}`);
+    }
+    let json;
+    try {
+      json = JSON.parse(text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1));
+    } catch {
+      throw new Error('回答を読み取れませんでした');
+    }
+    const parsed = schema.safeParse(json);
+    if (!parsed.success) throw new Error('回答の形が想定と違いました');
+    return parsed.data;
+  }
+  throw new Error('混雑が続いたのであきらめました');
+}
+
+// 使える AI を選ぶ（Claude のキーがあればそれ、無ければ Gemini の無料枠）
+function pickProvider() {
+  if (process.env.ANTHROPIC_API_KEY) {
+    const client = new Anthropic();
+    return {
+      label: `Claude（${MODEL}）`,
+      batchSize: 8, bodyLimit: 2500, concurrency: 3, shapeBatch: '', shapeIntro: '',
+      batchSchema: BatchNotes, introSchema: Intro,
+      ask: (prompt, schema) => askClaude(client, prompt, schema),
+    };
+  }
+  if (process.env.GEMINI_API_KEY) {
+    // 無料枠は1分あたりの回数が少ないので、1件ずつ順番に、間をあけて頼む
+    return {
+      get label() { return `Gemini 無料枠（${geminiModel}）`; },
+      batchSize: 8, bodyLimit: 2000, concurrency: 1, shapeBatch: JSON_SHAPE_BATCH, shapeIntro: JSON_SHAPE_INTRO,
+      batchSchema: LooseBatch, introSchema: Intro,
+      check: chooseGeminiModel,
+      ask: async (prompt, schema) => {
+        const out = await askGemini(prompt, schema);
+        await sleep(Number(process.env.NEWS_AI_GAP_MS ?? 7000));
+        return out;
+      },
+    };
+  }
+  return null;
+}
+
 async function enrich(items) {
-  const client = aiClient();
-  if (!client) {
-    console.log('ANTHROPIC_API_KEY が無いので AI 要約はスキップします（記事の書き出しを表示します）');
+  const ai = pickProvider();
+  if (!ai) {
+    console.log('使える AI が無いので AI 要約はスキップします（記事の書き出しを表示します）');
     return null;
   }
-  console.log(`AI 要約を作ります（モデル: ${MODEL}）`);
+  if (ai.check) await ai.check();
+  console.log(`AI 要約を作ります（${ai.label}）`);
 
-  // カテゴリごとにまとめて頼む
+  // カテゴリごとに、決まった本数ずつまとめて頼む
   const groups = new Map();
   items.forEach((it, i) => {
     if (!groups.has(it.category)) groups.set(it.category, []);
     groups.get(it.category).push(i);
   });
+  const batches = [];
+  for (const idxs of groups.values()) {
+    for (let k = 0; k < idxs.length; k += ai.batchSize) batches.push(idxs.slice(k, k + ai.batchSize));
+  }
 
   let done = 0;
-  await mapLimit([...groups.values()], 3, async (idxs) => {
-    const prompt = `${GUIDE}\n\n${FIELDS}\n\n記事一覧:\n\n${idxs.map((i) => articleText(items[i], i)).join('\n\n---\n\n')}`;
+  await mapLimit(batches, ai.concurrency, async (idxs) => {
+    const list = idxs.map((i) => articleText(items[i], i, ai.bodyLimit)).join('\n\n---\n\n');
+    const prompt = `${GUIDE}\n\n${FIELDS}\n\n${ai.shapeBatch}\n\n記事一覧:\n\n${list}`;
     try {
-      const out = await ask(client, prompt, BatchNotes);
+      const out = await ai.ask(prompt, ai.batchSchema);
       for (const a of out.items) {
         const it = items[a.i];
         if (!it || !idxs.includes(a.i)) continue;
         Object.assign(it, {
           summary: a.summary,
-          points: a.points.slice(0, 3),
+          points: (a.points || []).slice(0, 3),
           why: a.why,
           talk: a.talk,
           term: a.term && a.term.word ? a.term : null,
@@ -341,16 +460,15 @@ async function enrich(items) {
       console.log(`  AI 要約に失敗（${items[idxs[0]].categoryName}）: ${e.message}`);
     }
   });
-  console.log(`AI 要約を ${done}/${items.length} 件に付けました`);
+  console.log(`AI 要約を ${done}/${items.length} 件に付けました（${batches.length} 回の依頼）`);
   if (!done) return null;
 
   let intro = '';
   try {
     const list = items.filter((it) => it.summary).map((it) => `・(${it.categoryName}) ${it.title}`).join('\n');
-    const out = await ask(
-      client,
-      `${GUIDE}\n\n今回のニュース一覧をふまえて、アプリの冒頭に出す「ひとこと」(intro) を、親しみやすく40〜80字で書いてください。\n\n${list}`,
-      Intro,
+    const out = await ai.ask(
+      `${GUIDE}\n\n今回のニュース一覧をふまえて、アプリの冒頭に出す「ひとこと」(intro) を、親しみやすく40〜80字で書いてください。\n${ai.shapeIntro}\n\n${list}`,
+      ai.introSchema,
     );
     intro = out.intro;
   } catch (e) {
