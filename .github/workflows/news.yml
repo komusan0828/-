@@ -53,7 +53,11 @@ jobs:
           git config user.email "news-bot@users.noreply.github.com"
           git add docs/data
           git diff --cached --quiet || git commit -m "ニュース更新 $(TZ=Asia/Tokyo date '+%Y-%m-%d %H:%M')"
-          git push
+          # 実行中にほかの変更が入っても保存できるよう、最新を取り込んでから送る
+          for i in 1 2 3; do
+            git pull --rebase origin main && git push && break
+            sleep 5
+          done
 
       - uses: actions/upload-pages-artifact@v3
         with:
