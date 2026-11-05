@@ -3,7 +3,7 @@
  "date": "2026-11-05",
  "slot": "noon",
  "label": "昼",
- "generatedAt": "2026-11-05T04:31:19.773Z",
+ "generatedAt": "2026-11-05T04:36:50.625Z",
  "intro": "",
  "ai": false,
  "categories": [
@@ -183,6 +183,19 @@
    "id": "2026-11-05-noon-10",
    "category": "politics",
    "categoryName": "政治",
+   "title": "アメリカ中間選挙で民主党が上下両院の過半数を奪還 トランプ政権への影響は",
+   "link": "https://www.joqr.co.jp/news/article/185324/",
+   "source": "文化放送",
+   "desc": "１１月５日の「おはよう寺ちゃん」（文化放送）では、作家・竹田恒泰氏と寺島尚正アナウンサーが、アメリカ中間選挙に関するニュースについて意見を交わした。",
+   "img": "",
+   "time": "2026-11-05T04:23:44.000Z",
+   "buzz": 2,
+   "top": false
+  },
+  {
+   "id": "2026-11-05-noon-11",
+   "category": "politics",
+   "categoryName": "政治",
    "title": "共和大敗、マスク氏ぼやき 「宇宙レーザー機能せず」―米中間選挙",
    "link": "https://www.jiji.com/jc/article?k",
    "source": "時事ドットコム",
@@ -193,7 +206,7 @@
    "top": false
   },
   {
-   "id": "2026-11-05-noon-11",
+   "id": "2026-11-05-noon-12",
    "category": "politics",
    "categoryName": "政治",
    "title": "米中間選挙から一夜 ダウ平均は1500ドル超の大幅上昇 日経平均株価はわずかな下落",
@@ -202,19 +215,6 @@
    "desc": "",
    "img": "",
    "time": "2026-11-05T02:45:45.000Z",
-   "buzz": 2,
-   "top": false
-  },
-  {
-   "id": "2026-11-05-noon-12",
-   "category": "politics",
-   "categoryName": "政治",
-   "title": "【更新中】アメリカ中間選挙、開票速報 民主、上下両院奪還へ",
-   "link": "https://mainichi.jp/articles/20261104/hrc/00m/030/001000d",
-   "source": "毎日新聞",
-   "desc": "米中間選挙2026速報 トランプ政権に審判 第2次トランプ米政権への審判となる中間選挙が3日投開票された。連邦議会上院選（定数100）と下院選（定数435）で民主党が4年ぶりに多数派を奪還する見通しとなった。",
-   "img": "",
-   "time": "2026-11-05T02:33:37.000Z",
    "buzz": 2,
    "top": false
   },
@@ -248,13 +248,13 @@
    "id": "2026-11-05-noon-15",
    "category": "economy",
    "categoryName": "経済",
-   "title": "米中間選挙 日本経済への影響は",
-   "link": "https://news.yahoo.co.jp/pickup/6601343?source=rss",
-   "source": "Yahoo!ニュース",
-   "desc": "アメリカの中間選挙は民主党が上院と下院ともに勝利しました。この結果は日本にどんな影響をもたらすのでしょうか。日経平均は一時3000円以上の値下がり。今後の日本経済への「3つの影響」を見ていきます。",
+   "title": "国税庁「e-Tax」不審な通信検知でメンテナンスも再開",
+   "link": "https://news.web.nhk/newsweb/na/nd-20261105de70796",
+   "source": "NHK",
+   "desc": "税金の電子申告や納税ができる国税庁のシステム「e-Tax」が、不審な通信を検知したとして、緊急メンテナンスが行われ、4日から利用できなくなりましたが、5日10時半すぎに再開しました。 納税者の個人情…",
    "img": "",
-   "time": "2026-11-04T11:49:29.000Z",
-   "buzz": 3,
+   "time": "2026-11-05T03:04:00.000Z",
+   "buzz": 2,
    "top": false
   },
   {
@@ -404,13 +404,13 @@
    "id": "2026-11-05-noon-27",
    "category": "society",
    "categoryName": "社会",
-   "title": "特殊詐欺対策 警察庁 送金先口座情報を全国の金融機関と共有へ",
-   "link": "https://news.web.nhk/newsweb/na/nd-20261105de70890",
-   "source": "NHK",
-   "desc": "特殊詐欺の被害に歯止めが掛からない中、都道府県の警察が把握した被害金の振込先の口座情報を警察庁が一元的に集約し、全国800あまりの金融機関と共有することで次の送金などを食い止める新たな取り組みが始まり…",
+   "title": "暮らしの中の毛筆文化に光 書道、ユネスコ無形文化遺産登録へ",
+   "link": "https://mainichi.jp/articles/20261101/k00/00m/200/198000c",
+   "source": "毎日新聞",
+   "desc": "国連教育科学文化機関（ユネスコ）の無形文化遺産に日本の「書道」が登録される見通しとなった。ユネスコの評価機関が「登録」を勧告した。 日本独自の書文化の魅力、そして登録の意義とは何か。専門家に聞いた。",
    "img": "",
-   "time": "2026-11-05T04:07:14.000Z",
-   "buzz": 1,
+   "time": "2026-11-04T16:58:08.000Z",
+   "buzz": 2,
    "top": false
   },
   {
@@ -495,19 +495,6 @@
    "id": "2026-11-05-noon-34",
    "category": "business",
    "categoryName": "ビジネス",
-   "title": "“サイバー攻撃で新チーム運用” 対策パッケージで政府調整 | NHKニュース | サイバー攻撃、高市内閣、国会",
-   "link": "https://news.web.nhk/newsweb/na/nd-20261105de70695",
-   "source": "NHKニュース",
-   "desc": "【NHK】不正アクセスによる情報漏えいが相次ぐ中、政府は、今週中をめどにとりまとめる緊急対策パッケージに、重大なサイバー攻撃事案に対応する新たなチームの運用を早期に開始することなどを盛り込む方向で調整しています",
-   "img": "",
-   "time": "2026-11-04T21:23:00.000Z",
-   "buzz": 2,
-   "top": false
-  },
-  {
-   "id": "2026-11-05-noon-35",
-   "category": "business",
-   "categoryName": "ビジネス",
    "title": "トランプ資産が「約180億円」消失、民主党の中間選挙圧勝でトランプ・メディア株が過去最安値",
    "link": "https://forbesjapan.com/articles/detail/107724",
    "source": "Forbes JAPAN",
@@ -518,7 +505,7 @@
    "top": false
   },
   {
-   "id": "2026-11-05-noon-36",
+   "id": "2026-11-05-noon-35",
    "category": "business",
    "categoryName": "ビジネス",
    "title": "日銀、物価目標到達の先は「2%死守を」「利上げ速めるべき」",
@@ -531,7 +518,7 @@
    "top": false
   },
   {
-   "id": "2026-11-05-noon-37",
+   "id": "2026-11-05-noon-36",
    "category": "business",
    "categoryName": "ビジネス",
    "title": "【独自】リニア工事費再び増額へ JR東海、11兆円から（共同通信）",
@@ -540,6 +527,19 @@
    "desc": "JR東海が、リニア中央新幹線の東京・品川―名古屋間の工事費見通しを、従来の11兆円から増額する方向で検討していることが4日、関係者への取材で分かった。増額すると昨年10月以来となり、着工以降で3回目",
    "img": "",
    "time": "2026-11-04T14:29:11.000Z",
+   "buzz": 1,
+   "top": false
+  },
+  {
+   "id": "2026-11-05-noon-37",
+   "category": "business",
+   "categoryName": "ビジネス",
+   "title": "仏銀行大手、サイバー攻撃受け“約210億円”盗まれた疑い（2026年11月4日掲載）｜日テレNEWS NNN",
+   "link": "https://news.ntv.co.jp/category/international/de6c65e07b854603864e64c737f4c105",
+   "source": "日テレNEWS NNN",
+   "desc": "フランスの銀行大手がサイバー攻撃を受け、1億3300万ドル、日本円でおよそ210億円を盗まれた疑いがあることが分かりました。",
+   "img": "",
+   "time": "2026-11-04T12:57:00.000Z",
    "buzz": 1,
    "top": false
   },
@@ -560,19 +560,6 @@
    "id": "2026-11-05-noon-39",
    "category": "science",
    "categoryName": "科学・IT",
-   "title": "国税庁「e-Tax」不審な通信検知でメンテナンスも再開",
-   "link": "https://news.web.nhk/newsweb/na/nd-20261105de70796",
-   "source": "NHK",
-   "desc": "税金の電子申告や納税ができる国税庁のシステム「e-Tax」が、不審な通信を検知したとして、緊急メンテナンスが行われ、4日から利用できなくなりましたが、5日10時半すぎに再開しました。 納税者の個人情…",
-   "img": "",
-   "time": "2026-11-05T03:04:00.000Z",
-   "buzz": 1,
-   "top": false
-  },
-  {
-   "id": "2026-11-05-noon-40",
-   "category": "science",
-   "categoryName": "科学・IT",
    "title": "モンテローザ 会員情報62万件余流出か アララの不正アクセスで",
    "link": "https://news.web.nhk/newsweb/na/nd-20261105de70839",
    "source": "NHK",
@@ -583,7 +570,7 @@
    "top": false
   },
   {
-   "id": "2026-11-05-noon-41",
+   "id": "2026-11-05-noon-40",
    "category": "science",
    "categoryName": "科学・IT",
    "title": "ドコモ携帯 全国で障害が発生",
@@ -596,7 +583,7 @@
    "top": false
   },
   {
-   "id": "2026-11-05-noon-42",
+   "id": "2026-11-05-noon-41",
    "category": "science",
    "categoryName": "科学・IT",
    "title": "AI効果「期待超えた」日本企業9%",
@@ -605,6 +592,19 @@
    "desc": "",
    "img": "",
    "time": "2026-11-05T02:56:30.000Z",
+   "buzz": 1,
+   "top": false
+  },
+  {
+   "id": "2026-11-05-noon-42",
+   "category": "science",
+   "categoryName": "科学・IT",
+   "title": "米中間選挙、データセンター推進派がほぼ全面敗北 今後どうなる？",
+   "link": "https://news.yahoo.co.jp/articles/0330407e0274463fecd246680d783c0e26de8f82",
+   "source": "Yahoo!ニュース",
+   "desc": "2026年の米中間選挙では、民主党躍進を意味する「ブルーウェーブ」が起き、勢力図が民主党優位へと変わった。この結果は、人工知能（AI）と、その計算処理を支える物議を醸すデータセンターへの拒否の意思表",
+   "img": "",
+   "time": "2026-11-05T01:50:00.000Z",
    "buzz": 1,
    "top": false
   }
