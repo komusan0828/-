@@ -348,6 +348,7 @@ async function chooseGeminiModel() {
   }
 }
 
+let geminiThinkingLow = true; // 「考える量を少なめに」して速くする（対応していないモデルなら自動で外す）
 async function askGemini(prompt, schema) {
   for (let attempt = 0; attempt < 4; attempt++) {
     const res = await fetch(`${GEMINI_API}/models/${geminiModel}:generateContent`, {
@@ -356,18 +357,28 @@ async function askGemini(prompt, schema) {
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: 'あなたは日本語のニュース編集者です。指示された形の JSON オブジェクトだけを返します。' }] },
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        generationConfig: { responseMimeType: 'application/json', temperature: 0.3, maxOutputTokens: 16384 },
+        generationConfig: {
+          responseMimeType: 'application/json',
+          temperature: 0.3,
+          maxOutputTokens: 16384,
+          ...(geminiThinkingLow ? { thinkingConfig: { thinkingLevel: 'low' } } : {}),
+        },
       }),
-      signal: AbortSignal.timeout(180000),
+      signal: AbortSignal.timeout(120000),
     });
+    const raw = await res.text();
+    if (res.status === 400 && geminiThinkingLow && /thinking/i.test(raw)) {
+      geminiThinkingLow = false;
+      continue;
+    }
     if (res.status === 429 || res.status === 503) {
-      // 混み合っている・回数制限のときは少し待ってやり直す
-      const wait = Number(process.env.NEWS_RETRY_WAIT_SEC) || 30 * (attempt + 1);
-      console.log(`  （混雑のため ${wait} 秒待ちます）`);
+      // 1日の上限に達したときは待っても無駄なのですぐやめる
+      if (/PerDay|per day|daily/i.test(raw)) throw new Error(`今日の無料枠を使い切りました: ${raw.slice(0, 160)}`);
+      const wait = Number(process.env.NEWS_RETRY_WAIT_SEC) || 15 * (attempt + 1);
+      console.log(`  （混雑のため ${wait} 秒待ちます: HTTP ${res.status} ${raw.replace(/\s+/g, ' ').slice(0, 120)}）`);
       await sleep(wait * 1000);
       continue;
     }
-    const raw = await res.text();
     // 「このモデルは提供終了、代わりに〜を使って」と言われたら、そのモデルに切り替えてやり直す
     const suggested = res.status === 404 && raw.match(/use models\/([\w.-]+)/);
     if (suggested && suggested[1] !== geminiModel) {
@@ -412,12 +423,12 @@ function pickProvider() {
     // 無料枠は1分あたりの回数が少ないので、1件ずつ順番に、間をあけて頼む
     return {
       get label() { return `Gemini 無料枠（${geminiModel}）`; },
-      batchSize: 8, bodyLimit: 2000, concurrency: 1, shapeBatch: JSON_SHAPE_BATCH, shapeIntro: JSON_SHAPE_INTRO,
+      batchSize: 8, bodyLimit: 2000, concurrency: 2, shapeBatch: JSON_SHAPE_BATCH, shapeIntro: JSON_SHAPE_INTRO,
       batchSchema: LooseBatch, introSchema: Intro,
       check: chooseGeminiModel,
       ask: async (prompt, schema) => {
         const out = await askGemini(prompt, schema);
-        await sleep(Number(process.env.NEWS_AI_GAP_MS ?? 7000));
+        await sleep(Number(process.env.NEWS_AI_GAP_MS ?? 4000));
         return out;
       },
     };
@@ -446,7 +457,12 @@ async function enrich(items) {
   }
 
   let done = 0;
+  let tried = 0;
+  const deadline = Date.now() + Number(process.env.NEWS_AI_BUDGET_SEC || 360) * 1000;
   await mapLimit(batches, ai.concurrency, async (idxs) => {
+    if (Date.now() > deadline) return; // 時間切れ：残りは記事の書き出しで表示
+    const t0 = Date.now();
+    tried++;
     const list = idxs.map((i) => articleText(items[i], i, ai.bodyLimit)).join('\n\n---\n\n');
     const prompt = `${GUIDE}\n\n${FIELDS}\n\n${ai.shapeBatch}\n\n記事一覧:\n\n${list}`;
     try {
@@ -464,11 +480,12 @@ async function enrich(items) {
         });
         done++;
       }
+      console.log(`  ${items[idxs[0]].categoryName}: ${out.items.length}件 OK（${Math.round((Date.now() - t0) / 1000)}秒）`);
     } catch (e) {
       console.log(`  AI 要約に失敗（${items[idxs[0]].categoryName}）: ${e.message}`);
     }
   });
-  console.log(`AI 要約を ${done}/${items.length} 件に付けました（${batches.length} 回の依頼）`);
+  console.log(`AI 要約を ${done}/${items.length} 件に付けました（${tried}/${batches.length} 回依頼${tried < batches.length ? '、時間切れで残りは省略' : ''}）`);
   if (!done) return null;
 
   let intro = '';
