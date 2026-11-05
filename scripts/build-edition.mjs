@@ -3,7 +3,7 @@
 // 環境変数 ANTHROPIC_API_KEY があれば、AI が「ざっくり要約・話のネタ・用語解説」を付ける
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { CATEGORIES, BUZZ_FEEDS, NG_WORDS, NG_WORDS_LOCAL, LOCAL_BOOST } from './feeds.mjs';
+import { CATEGORIES, BUZZ_FEEDS, NG_WORDS, NG_WORDS_LOCAL, NG_SOURCES, LOCAL_BOOST } from './feeds.mjs';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const DATA = path.join(ROOT, 'docs', 'data');
@@ -173,7 +173,9 @@ async function fillDescriptions(items) {
     delete it.rawDesc;
     if (!d || counts.get(d) > 1 || d.length < 25) continue;
     if (similarity(bigrams(normalize(d)), bigrams(normalize(it.title))) > 0.85 && d.length < it.title.length + 15) continue;
-    if (/公式サイト|ニュースサイト|最新ニュース|をお届け|ホームページ/.test(d) && d.length < 80) continue;
+    if (/公式サイト|ニュースサイト|最新ニュース|をお届け|ホームページ|県紙|地方紙/.test(d)) continue;
+    // 見出しとほとんど言葉がかぶらない説明文は、サイト共通の紹介文の可能性が高い
+    if (similarity(bigrams(normalize(d)), bigrams(normalize(it.title))) < 0.15) continue;
     it.desc = d.length > 220 ? d.slice(0, 220) + '…' : d;
     got++;
   }
@@ -326,6 +328,8 @@ async function main() {
     if (it.time && now - it.time > maxAge(it.cat)) return false;
     const ng = it.cat.local ? NG_WORDS_LOCAL : NG_WORDS;
     if (ng.some((w) => it.title.includes(w))) return false;
+    if (/[\[［]\d{3}[\dA-Z][\]］]|[（(]\d{3}[A-Z][)）]/.test(it.title)) return false; // 証券コード付きの開示情報
+    if (NG_SOURCES.some((w) => (it.source || '').includes(w))) return false;
     if (recentLinks.has(it.link)) return false;
     if (recentTitles.some((r) => similarity(r, it.bg) > 0.6)) return false;
     return true;
