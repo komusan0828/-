@@ -107,7 +107,7 @@ main { max-width: 640px; margin: 0 auto; padding: 0 16px; }
 
 /* ---------- TOP3 ---------- */
 .hero {
-  display: grid; grid-auto-flow: column; grid-auto-columns: 84%; gap: 12px;
+  display: grid; grid-auto-flow: column; grid-auto-columns: 86%; gap: 12px; align-items: start;
   overflow-x: auto; scroll-snap-type: x mandatory; margin: 0 -16px 22px; padding: 4px 16px 10px;
   scrollbar-width: none;
 }
@@ -125,7 +125,7 @@ main { max-width: 640px; margin: 0 auto; padding: 0 16px; }
 }
 .hero-card .tag { background: rgba(255,255,255,.25); color: #fff; }
 .hero-card h3 { margin: 0; font-size: 18px; line-height: 1.45; font-weight: 900; }
-.hero-card p { margin: 0; font-size: 13px; opacity: .92; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.hero-card p { margin: 0; font-size: 14px; line-height: 1.7; opacity: .95; }
 .hero-card .meta { margin-top: auto; color: rgba(255,255,255,.85); }
 .hero-card.read { filter: saturate(.55); }
 
@@ -163,7 +163,8 @@ main { max-width: 640px; margin: 0 auto; padding: 0 16px; }
 }
 .card:active { transform: scale(.985); }
 .card h3 { margin: 4px 0 4px; font-size: 16px; line-height: 1.5; font-weight: 700; }
-.card .sum { margin: 2px 0 8px; font-size: 14px; line-height: 1.65; color: var(--ink2); display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.card .sum { margin: 4px 0 10px; font-size: 14.5px; line-height: 1.75; color: var(--ink2); }
+.card .sum.lead { font-size: 13.5px; }
 .card.read { opacity: .62; }
 .card.read h3::after { content: " ✓"; color: var(--c-science); font-size: 13px; }
 .card .star { position: absolute; right: 10px; top: 10px; font-size: 18px; }
@@ -249,6 +250,8 @@ main { max-width: 640px; margin: 0 auto; padding: 0 16px; }
 }
 .box .lbl { font-size: 12px; font-weight: 900; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
 .box p { margin: 0; font-size: 15px; }
+.box ul { margin: 2px 0 0; padding-left: 1.2em; }
+.box li { margin: 2px 0; font-size: 15px; }
 .box.talk { background: color-mix(in srgb, var(--c-life) 10%, var(--card)); }
 .box.talk .lbl { color: var(--c-life); }
 .box.why .lbl { color: var(--c-business); }

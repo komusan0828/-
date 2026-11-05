@@ -3,13 +3,16 @@
 // 環境変数 ANTHROPIC_API_KEY があれば、AI が「ざっくり要約・話のネタ・用語解説」を付ける
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import Anthropic from '@anthropic-ai/sdk';
+import { betaZodOutputFormat } from '@anthropic-ai/sdk/helpers/beta/zod';
+import { z } from 'zod';
 import { CATEGORIES, BUZZ_FEEDS, NG_WORDS, NG_WORDS_LOCAL, NG_SOURCES, LOCAL_BOOST } from './feeds.mjs';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const DATA = path.join(ROOT, 'docs', 'data');
 const EDITIONS = path.join(DATA, 'editions');
 const KEEP_DAYS = 30;
-const MODEL = process.env.NEWS_AI_MODEL || 'claude-sonnet-5-5';
+const MODEL = process.env.NEWS_AI_MODEL || 'claude-opus-5-5';
 
 // ---------- 日付（日本時間） ----------
 function jstNow() {
@@ -112,6 +115,21 @@ function metaContent(html, key) {
   return m ? stripTags(decode(m[1])) : '';
 }
 
+// 記事の本文らしい段落を取り出す（AI に要約してもらうためだけに使い、公開データには入れない）
+function extractBody(html) {
+  let h = html.replace(/<(script|style|noscript|nav|header|footer|aside|form)[\s\S]*?<\/\1>/gi, ' ');
+  const article = h.match(/<article[\s\S]*?<\/article>/i);
+  if (article) h = article[0];
+  const paras = [];
+  for (const m of h.matchAll(/<p(?:\s[^>]*)?>([\s\S]*?)<\/p>/gi)) {
+    const t = stripTags(decode(m[1]));
+    if (t.length < 25) continue;
+    if (/Copyright|無断転載|©|ログイン|会員登録|クッキー|Cookie|JavaScript/.test(t)) continue;
+    paras.push(t);
+  }
+  return [...new Set(paras)].join('\n').slice(0, 2500);
+}
+
 async function fetchDescription(url) {
   try {
     const res = await fetch(url, {
@@ -127,9 +145,9 @@ async function fetchDescription(url) {
     let html;
     try { html = new TextDecoder(charset || 'utf-8').decode(buf); } catch { html = buf.toString('utf8'); }
     const desc = metaContent(html, 'og:description') || metaContent(html, 'description') || metaContent(html, 'twitter:description');
-    return { url: res.url || url, desc };
+    return { url: res.url || url, desc, body: extractBody(html) };
   } catch {
-    return { url, desc: '' };
+    return { url, desc: '', body: '' };
   }
 }
 
@@ -148,10 +166,10 @@ async function mapLimit(list, limit, fn) {
 
 async function fillDescriptions(items) {
   const targets = items.filter((it) => !it.desc);
-  if (!targets.length) return;
   let resolved = 0;
   let got = 0;
-  await mapLimit(targets, 6, async (it) => {
+  let bodies = 0;
+  await mapLimit(items, 6, async (it) => {
     let url = it.link;
     if (url.includes('news.google.com')) {
       const real = await resolveGoogleUrl(url);
@@ -160,10 +178,12 @@ async function fillDescriptions(items) {
       url = real;
       it.link = real; // 元の記事に直接飛べるようにする
     }
-    const { desc } = await fetchDescription(url);
-    if (desc) {
-      it.rawDesc = desc;
+    const { desc, body } = await fetchDescription(url);
+    if (body && body.length > 80) {
+      it.body = body;
+      bodies++;
     }
+    if (desc && !it.desc) it.rawDesc = desc;
   });
   // サイト共通の決まり文句（どの記事でも同じ説明文）は使わない
   const counts = new Map();
@@ -176,10 +196,10 @@ async function fillDescriptions(items) {
     if (/公式サイト|ニュースサイト|最新ニュース|をお届け|ホームページ|県紙|地方紙/.test(d)) continue;
     // 見出しとほとんど言葉がかぶらない説明文は、サイト共通の紹介文の可能性が高い
     if (similarity(bigrams(normalize(d)), bigrams(normalize(it.title))) < 0.15) continue;
-    it.desc = d.length > 220 ? d.slice(0, 220) + '…' : d;
+    it.desc = d.length > 300 ? d.slice(0, 300) + '…' : d;
     got++;
   }
-  console.log(`概要の追加: Google転送の解決 ${resolved}件 / 概要を取得 ${got}件（対象 ${targets.length}件）`);
+  console.log(`概要の追加: Google転送の解決 ${resolved}件 / 概要を取得 ${got}件（対象 ${targets.length}件） / 本文を取得 ${bodies}件`);
 }
 
 async function fetchFeed(url) {
@@ -217,65 +237,126 @@ function similarity(a, b) {
   return inter / Math.min(a.size, b.size);
 }
 
-// ---------- AI で解説を付ける（任意） ----------
-async function enrich(items) {
-  const key = process.env.ANTHROPIC_API_KEY;
-  if (!key) {
-    console.log('ANTHROPIC_API_KEY が無いので AI 解説はスキップします');
-    return null;
-  }
-  const list = items
-    .map((it, i) => `[${i}] (${it.categoryName}) ${it.title}${it.desc ? `\n    概要: ${it.desc}` : ''}`)
-    .join('\n');
-  const prompt = `あなたは、ニュースをやさしく解説する編集者です。
-読者は30代後半の女性で、パートをしながら家庭を切り盛りしています。
-世の中の動きへの理解を深め、ママ友・パート仲間・家族との会話で自然に話題にできるようになりたいと思っています。
+// ---------- AI で要約・解説を付ける（ANTHROPIC_API_KEY があるときだけ） ----------
+const ItemNote = z.object({
+  i: z.number().int(),
+  summary: z.string(),
+  points: z.array(z.string()),
+  why: z.string(),
+  talk: z.string(),
+  term: z.object({ word: z.string(), meaning: z.string() }).nullable(),
+  emoji: z.string(),
+});
+const BatchNotes = z.object({ items: z.array(ItemNote) });
+const Intro = z.object({ intro: z.string() });
 
-以下は今回の見出し一覧です。各記事について JSON で返してください。
+const GUIDE = `あなたは、ニュースをやさしく解説する編集者です。
+読者は30代後半の女性で、パートをしながら家庭を切り盛りしています。
+記事のリンクを開かなくても、このアプリの文章だけで内容がわかり、ママ友・パート仲間・家族との会話で自然に話題にできることが目標です。
 
 ルール:
-- 見出しと概要に書かれた事実だけを根拠にし、書かれていない数字・人名・経緯を作らない
-- 背景知識は一般的に知られていることに限る。不確かなら書かない
-- 専門用語を使わず、中学生にも分かる言葉で。です・ます調
-- summary: 何が起きたかを2文以内（60〜90字）
-- why: 「これって私たちにどう関係する？」の視点で1文（40〜70字）
+- 記事本文・概要・見出しに書かれている事実だけを使う。書かれていない数字・人名・経緯は作らない
+- 背景の説明は、一般によく知られていることに限る。不確かなことは書かない
+- 本文がなく見出ししか無い記事は、見出しから確実に言えることだけを短く書く
+- 専門用語を避け、中学生にもわかる言葉で、です・ます調
+- 記事の文章を長く書き写さず、自分の言葉でまとめる`;
+
+const FIELDS = `各記事について:
+- summary: 記事を開かなくても読み切れる要約。「いつ・どこで・誰が・何をした・どうなる」がわかるように3〜5文（150〜250字）
+- points: 押さえておきたい点を2〜3個（各20〜40字）
+- why: 「これって私たちの暮らしにどう関係する？」を1文（40〜70字）
 - talk: 会話でそのまま使える一言。「〜らしいね」「〜って知ってた？」のような口語で1文（30〜60字）
-- term: 見出し中の難しめの言葉を1つと、その意味（30〜60字）。なければ null
+- term: 記事中の難しめの言葉を1つとその意味（30〜60字）。なければ null
 - emoji: 内容に合う絵文字1つ
+- i: 記事の番号（そのまま返す）`;
 
-また、今回のニュース全体をふまえた「ひとこと」(intro) を、親しみやすく40〜80字で書いてください。
+function articleText(it, i) {
+  const parts = [`[${i}] ${it.title}（${it.source || '出典不明'}）`];
+  if (it.desc) parts.push(`概要: ${it.desc}`);
+  if (it.body) parts.push(`本文:\n${it.body}`);
+  return parts.join('\n');
+}
 
-返答は次の形の JSON のみ（前後に文章を付けない）:
-{"intro":"...","items":[{"i":0,"summary":"...","why":"...","talk":"...","term":{"word":"...","meaning":"..."},"emoji":"..."}]}
+function aiClient() {
+  if (!process.env.ANTHROPIC_API_KEY) return null;
+  return new Anthropic();
+}
 
-見出し一覧:
-${list}`;
+// 安全チェックで断られたときに、別のモデルで自動でやり直す設定（対応モデルだけ）
+function fallbackParams() {
+  if (/^claude-(opus-5-5|sonnet-5-5|opus-5|fable-5-1)$/.test(MODEL)) {
+    return { betas: ['server-side-fallback-2026-07-01'], fallbacks: 'default' };
+  }
+  return {};
+}
 
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        'x-api-key': key,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        max_tokens: 16000,
-        messages: [{ role: 'user', content: prompt }],
-      }),
-      signal: AbortSignal.timeout(300000),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status} ${(await res.text()).slice(0, 300)}`);
-    const data = await res.json();
-    const text = data.content.filter((c) => c.type === 'text').map((c) => c.text).join('');
-    const json = JSON.parse(text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1));
-    console.log(`AI 解説を ${json.items?.length ?? 0} 件付けました`);
-    return json;
-  } catch (e) {
-    console.log(`AI 解説に失敗しました（見出しだけで続行）: ${e.message}`);
+async function ask(client, prompt, schema) {
+  const res = await client.beta.messages.parse({
+    model: MODEL,
+    max_tokens: 16000,
+    output_config: { effort: 'low', format: betaZodOutputFormat(schema) },
+    ...fallbackParams(),
+    messages: [{ role: 'user', content: prompt }],
+  });
+  if (res.stop_reason === 'refusal') throw new Error('AI が回答を控えました');
+  if (res.stop_reason === 'max_tokens') throw new Error('回答が長すぎて途中で切れました');
+  if (!res.parsed_output) throw new Error('回答を読み取れませんでした');
+  return res.parsed_output;
+}
+
+async function enrich(items) {
+  const client = aiClient();
+  if (!client) {
+    console.log('ANTHROPIC_API_KEY が無いので AI 要約はスキップします（記事の書き出しを表示します）');
     return null;
   }
+  console.log(`AI 要約を作ります（モデル: ${MODEL}）`);
+
+  // カテゴリごとにまとめて頼む
+  const groups = new Map();
+  items.forEach((it, i) => {
+    if (!groups.has(it.category)) groups.set(it.category, []);
+    groups.get(it.category).push(i);
+  });
+
+  let done = 0;
+  await mapLimit([...groups.values()], 3, async (idxs) => {
+    const prompt = `${GUIDE}\n\n${FIELDS}\n\n記事一覧:\n\n${idxs.map((i) => articleText(items[i], i)).join('\n\n---\n\n')}`;
+    try {
+      const out = await ask(client, prompt, BatchNotes);
+      for (const a of out.items) {
+        const it = items[a.i];
+        if (!it || !idxs.includes(a.i)) continue;
+        Object.assign(it, {
+          summary: a.summary,
+          points: a.points.slice(0, 3),
+          why: a.why,
+          talk: a.talk,
+          term: a.term && a.term.word ? a.term : null,
+          emoji: a.emoji,
+        });
+        done++;
+      }
+    } catch (e) {
+      console.log(`  AI 要約に失敗（${items[idxs[0]].categoryName}）: ${e.message}`);
+    }
+  });
+  console.log(`AI 要約を ${done}/${items.length} 件に付けました`);
+  if (!done) return null;
+
+  let intro = '';
+  try {
+    const list = items.filter((it) => it.summary).map((it) => `・(${it.categoryName}) ${it.title}`).join('\n');
+    const out = await ask(
+      client,
+      `${GUIDE}\n\n今回のニュース一覧をふまえて、アプリの冒頭に出す「ひとこと」(intro) を、親しみやすく40〜80字で書いてください。\n\n${list}`,
+      Intro,
+    );
+    intro = out.intro;
+  } catch (e) {
+    console.log(`  ひとことの作成に失敗: ${e.message}`);
+  }
+  return { intro };
 }
 
 // ---------- メイン ----------
@@ -396,19 +477,7 @@ async function main() {
 
   await fillDescriptions(items);
   const ai = await enrich(items);
-  if (ai?.items) {
-    for (const a of ai.items) {
-      const it = items[a.i];
-      if (!it) continue;
-      Object.assign(it, {
-        summary: a.summary || '',
-        why: a.why || '',
-        talk: a.talk || '',
-        term: a.term && a.term.word ? a.term : null,
-        emoji: a.emoji || '',
-      });
-    }
-  }
+  for (const it of items) delete it.body; // 記事本文は公開データに入れない
 
   const edition = {
     id,

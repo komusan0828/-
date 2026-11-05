@@ -19,9 +19,19 @@ GitHub Actions が日本時間 6:30 / 11:30 / 18:30 ごろに NHK・Yahoo!ニュ
    （Settings → General → Danger Zone → Change visibility）。中身はニュースの見出しだけで個人情報は含みません。
    GitHub Pro なら Private のままで OK。
 2. **Pages を有効に**：Settings → Pages → Source を「**GitHub Actions**」にする
-3. **（おすすめ）AI 解説を有効に**：Settings → Secrets and variables → Actions → New repository secret で
-   名前 `ANTHROPIC_API_KEY`、値に Anthropic の API キーを登録
-   （1日3回でおおよそ月数百円程度。未設定でも見出しだけで動きます）
+3. **（おすすめ）AI 要約を有効に**：Settings → Secrets and variables → Actions → New repository secret で
+   名前 `ANTHROPIC_API_KEY`、値に Anthropic の API キーを登録。
+   記事本文を AI が読み、リンクを開かなくても読み切れる要約・ポイント・会話のネタを付けます。
+   未設定のときは、記事の書き出し（サイトが公開している説明文）を表示します。
+
+   使うモデルは Variables タブで `NEWS_AI_MODEL` を作ると変えられます（未設定なら `claude-opus-5-5`）。
+   1日3回・約45本のときの目安（記事の長さで上下します）:
+
+   | モデル | 月額の目安 |
+   |---|---|
+   | `claude-opus-5-5`（標準・いちばん丁寧） | 約 9,000 円 |
+   | `claude-sonnet-5-5` | 約 4,500 円 |
+   | `claude-haiku-5-5`（いちばん安い） | 約 250 円 |
 4. **初回の実行**：Actions タブ →「ニュースを集めて公開」→ Run workflow
 5. 公開 URL（`https://<ユーザー名>.github.io/<リポジトリ名>/`）をスマホで開き、
    共有ボタン →「ホーム画面に追加」
