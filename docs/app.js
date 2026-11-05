@@ -234,14 +234,29 @@
   }
   // シートを下へシュッとすべらせて閉じる
   let sheetClosing = false;
-  function closeSheet() {
+  // v: 指で払ったときの下向きの速さ（px/ms）。その勢いを引き継いで、最後は加速して下に吸い込まれるように消える
+  function closeSheet(v = 0) {
     const sheet = $('#sheet');
     const backdrop = $('#backdrop');
     if (sheet.hidden || sheetClosing) return;
     sheetClosing = true;
-    sheet.style.transition = 'transform .22s cubic-bezier(.4,0,.7,.6)';
-    sheet.style.transform = 'translateY(105%)';
-    backdrop.style.transition = 'opacity .22s ease';
+    const now = new DOMMatrix(getComputedStyle(sheet).transform).m42 || 0; // いま下にずれている量
+    const remaining = sheet.offsetHeight + 40 - now;
+    let dur;
+    let ease;
+    if (v > 0.2) {
+      // 払ったとき：指の速さで滑り出し、さらに加速して消える
+      dur = Math.min(260, Math.max(150, remaining / Math.max(v * 1.3, 1.5)));
+      const startSlope = Math.min(1.5, (v * dur) / remaining);
+      ease = `cubic-bezier(.25, ${(0.25 * startSlope).toFixed(2)}, .7, .55)`;
+    } else {
+      // ボタンや背景タップ、ゆっくり引いたとき：少しためてから加速して落ちる
+      dur = 280;
+      ease = 'cubic-bezier(.5, 0, .75, .35)';
+    }
+    sheet.style.transition = `transform ${dur}ms ${ease}`;
+    sheet.style.transform = 'translateY(calc(100% + 40px))';
+    backdrop.style.transition = `opacity ${dur}ms ease-in`;
     backdrop.style.opacity = '0';
     document.body.style.overflow = '';
     setTimeout(() => {
@@ -250,7 +265,7 @@
       sheet.style.transition = sheet.style.transform = '';
       backdrop.style.transition = backdrop.style.opacity = '';
       sheetClosing = false;
-    }, 230);
+    }, dur + 20);
   }
 
   function markRead(id) {
@@ -441,7 +456,7 @@
     const v = (y2 - y1) / Math.max(16, t2 - t1);
     // ある程度引いたか、下に払ったら閉じる。少しだけなら元に戻す
     if (dy > 80 || (v > 0.3 && dy > 20) || dy > sheetEl.offsetHeight * 0.25) {
-      closeSheet();
+      closeSheet(Math.max(v, 0));
     } else {
       sheetEl.style.transition = 'transform .28s cubic-bezier(.2,.9,.3,1.15)';
       sheetEl.style.transform = '';
