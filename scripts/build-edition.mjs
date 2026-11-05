@@ -316,7 +316,8 @@ term が無いときは null にしてください。`;
 const JSON_SHAPE_INTRO = '返答は {"intro":"..."} の形の JSON オブジェクトだけにしてください。';
 
 const GEMINI_API = 'https://generativelanguage.googleapis.com/v1beta';
-let geminiModel = process.env.NEWS_GEMINI_MODEL || 'gemini-2.5-flash';
+// 指定が無ければ、使える flash 系のいちばん新しいモデルを自動で選ぶ
+let geminiModel = process.env.NEWS_GEMINI_MODEL || '';
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // 指定のモデルが使えるか確認し、無ければ使える「flash」系のいちばん新しいものを選ぶ
@@ -333,13 +334,13 @@ async function chooseGeminiModel() {
     const models = ((await res.json()).models || [])
       .filter((m) => (m.supportedGenerationMethods || []).includes('generateContent'))
       .map((m) => m.name.replace(/^models\//, ''));
-    if (models.includes(geminiModel)) return;
+    if (geminiModel && models.includes(geminiModel)) return;
     const flash = models
       .filter((n) => /^gemini-[\d.]+-flash$/.test(n))
       .sort((a, b) => parseFloat(b.slice(7)) - parseFloat(a.slice(7)));
     const pick = flash[0] || models.find((n) => n.includes('flash') && !/image|tts|live|audio/.test(n));
     if (pick) {
-      console.log(`  ${geminiModel} は使えないので ${pick} を使います`);
+      if (geminiModel) console.log(`  ${geminiModel} は使えないので ${pick} を使います`);
       geminiModel = pick;
     }
   } catch (e) {
@@ -367,6 +368,13 @@ async function askGemini(prompt, schema) {
       continue;
     }
     const raw = await res.text();
+    // 「このモデルは提供終了、代わりに〜を使って」と言われたら、そのモデルに切り替えてやり直す
+    const suggested = res.status === 404 && raw.match(/use models\/([\w.-]+)/);
+    if (suggested && suggested[1] !== geminiModel) {
+      console.log(`  ${geminiModel} は提供終了とのことなので ${suggested[1]} に切り替えます`);
+      geminiModel = suggested[1];
+      continue;
+    }
     if (!res.ok) throw new Error(`HTTP ${res.status} ${raw.slice(0, 200)}`);
     let text = '';
     try {
