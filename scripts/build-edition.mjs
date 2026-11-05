@@ -562,6 +562,14 @@ async function main() {
   const id = `${date}-${slot}`;
   console.log(`=== ${date} ${SLOT_LABEL[slot]}の号を作ります ===`);
 
+  if (process.env.NEWS_ONLY_IF_MISSING) {
+    try {
+      await fs.access(path.join(EDITIONS, `${id}.json`));
+      console.log('この号はもうできているので、今回は何もしません');
+      return;
+    } catch {}
+  }
+
   await fs.mkdir(EDITIONS, { recursive: true });
   const indexPath = path.join(DATA, 'index.json');
   let index = [];

@@ -2,8 +2,11 @@ name: ニュースを集めて公開
 
 on:
   schedule:
-    # 日本時間 6:30 / 11:30 / 18:30 ごろ（GitHub の混雑で数十分遅れることがあります）
-    - cron: '30 21 * * *'
+    # 朝: 日本時間 5:47 に開始（6:30 までに届くよう早めに。GitHub の混雑で遅れることがあるため）
+    - cron: '47 20 * * *'
+    # 朝の予備: 6:17 に、まだ朝の号ができていなければ作る
+    - cron: '17 21 * * *'
+    # 昼 11:30 / 夜 18:30 ごろ
     - cron: '30 2 * * *'
     - cron: '30 9 * * *'
   workflow_dispatch: {}
@@ -44,6 +47,8 @@ jobs:
           # 無料の Google Gemini を使うためのキー（ANTHROPIC_API_KEY があればそちらを優先）
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           NEWS_GEMINI_MODEL: ${{ vars.NEWS_GEMINI_MODEL }}
+          # 予備の実行では、その号がもうできていれば何もしない
+          NEWS_ONLY_IF_MISSING: ${{ github.event.schedule == '17 21 * * *' && '1' || '' }}
         run: node scripts/build-edition.mjs
 
       - name: 集めたデータを保存
