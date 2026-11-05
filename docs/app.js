@@ -112,7 +112,7 @@
       ${isSaved ? '<span class="star">⭐</span>' : ''}
       <div class="meta"><span class="tag">${it.emoji || c.emoji} ${esc(c.name)}</span>${it.buzz >= 4 ? '<span class="tag hot">🔥 話題</span>' : ''}</div>
       <h3>${esc(it.title)}</h3>
-      ${it.summary ? `<p class="sum">${esc(it.summary)}</p>` : ''}
+      ${it.summary || it.desc ? `<p class="sum">${esc(it.summary || it.desc)}</p>` : ''}
       <div class="meta"><span>${esc(it.source)}</span><span>${ago(it.time)}</span>${it.talk ? '<span>💬 話のネタあり</span>' : ''}</div>
     </button>`;
   }
@@ -138,7 +138,7 @@
         <span class="rank">${n + 1}</span>
         <div><span class="tag">${it.emoji || c.emoji} ${esc(c.name)}</span></div>
         <h3>${esc(it.title)}</h3>
-        ${it.summary ? `<p>${esc(it.summary)}</p>` : ''}
+        ${it.summary || it.desc ? `<p>${esc(it.summary || it.desc)}</p>` : ''}
         <div class="meta"><span>${esc(it.source)}</span><span>${ago(it.time)}</span>${readIds.has(it.id) ? '<span>✓ 読んだ</span>' : ''}</div>
       </button>`;
     }).join('');
@@ -210,7 +210,7 @@
     body.push(`<div class="meta" data-cat="${esc(it.category)}"><span class="tag">${it.emoji || c.emoji} ${esc(c.name)}</span><span>${esc(it.source)}</span><span>${ago(it.time)}</span></div>`);
     body.push(`<h2>${esc(it.title)}</h2>`);
     if (it.summary) body.push(`<div class="box"><div class="lbl">📝 ざっくり言うと</div><p>${esc(it.summary)}</p></div>`);
-    else if (it.desc) body.push(`<div class="box"><div class="lbl">📝 概要</div><p>${esc(it.desc)}</p></div>`);
+    if (it.desc) body.push(`<div class="box"><div class="lbl">📰 記事の書き出し</div><p>${esc(it.desc)}</p></div>`);
     if (it.why) body.push(`<div class="box why"><div class="lbl">🤔 わたしたちとの関係</div><p>${esc(it.why)}</p></div>`);
     if (it.talk) body.push(`<div class="box talk"><div class="lbl">💬 会話で使うなら <button class="copy" data-copy="${esc(it.talk)}">コピー</button></div><p>「${esc(it.talk)}」</p></div>`);
     if (it.term) body.push(`<div class="box term"><div class="lbl">📖 ことば</div><p><b>${esc(it.term.word)}</b>：${esc(it.term.meaning)}</p></div>`);
