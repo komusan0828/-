@@ -232,10 +232,25 @@
     document.body.style.overflow = 'hidden';
     markRead(it.id);
   }
+  // シートを下へシュッとすべらせて閉じる
+  let sheetClosing = false;
   function closeSheet() {
-    $('#sheet').hidden = true;
-    $('#backdrop').hidden = true;
+    const sheet = $('#sheet');
+    const backdrop = $('#backdrop');
+    if (sheet.hidden || sheetClosing) return;
+    sheetClosing = true;
+    sheet.style.transition = 'transform .22s cubic-bezier(.4,0,.7,.6)';
+    sheet.style.transform = 'translateY(105%)';
+    backdrop.style.transition = 'opacity .22s ease';
+    backdrop.style.opacity = '0';
     document.body.style.overflow = '';
+    setTimeout(() => {
+      sheet.hidden = true;
+      backdrop.hidden = true;
+      sheet.style.transition = sheet.style.transform = '';
+      backdrop.style.transition = backdrop.style.opacity = '';
+      sheetClosing = false;
+    }, 230);
   }
 
   function markRead(id) {
@@ -386,13 +401,57 @@
   window.addEventListener('resize', () => syncPager(false));
   document.fonts?.ready.then(() => syncPager(false));
 
-  // シートを下にスワイプで閉じる
-  let startY = null;
-  $('#sheet').addEventListener('touchstart', (e) => { startY = $('#sheet').scrollTop <= 0 ? e.touches[0].clientY : null; }, { passive: true });
-  $('#sheet').addEventListener('touchend', (e) => {
-    if (startY !== null && e.changedTouches[0].clientY - startY > 90) closeSheet();
-    startY = null;
-  });
+  // シートを指で下に引っぱって閉じる（指に合わせて動き、離すとシュッと閉じるか元に戻る）
+  const sheetEl = $('#sheet');
+  const backdropEl = $('#backdrop');
+  let pull = null;
+  sheetEl.addEventListener('touchstart', (e) => {
+    if (sheetClosing || e.touches.length > 1) { pull = null; return; }
+    const y = e.touches[0].clientY;
+    pull = { y, samples: [[performance.now(), y]], dy: 0, active: false, atTop: sheetEl.scrollTop <= 0 };
+  }, { passive: true });
+  sheetEl.addEventListener('touchmove', (e) => {
+    if (!pull) return;
+    const y = e.touches[0].clientY;
+    if (!pull.active) {
+      const dy = y - pull.y;
+      if (Math.abs(dy) < 6) return;
+      // いちばん上で下に引いたときだけシートを動かす。それ以外は中身のスクロール
+      if (dy > 0 && pull.atTop && sheetEl.scrollTop <= 0) pull.active = true;
+      else { pull = null; return; }
+    }
+    e.preventDefault();
+    const now = performance.now();
+    pull.samples.push([now, y]);
+    while (pull.samples.length > 2 && now - pull.samples[0][0] > 100) pull.samples.shift(); // 直前0.1秒ぶんだけ残す
+    pull.dy = Math.max(0, y - pull.y);
+    sheetEl.style.transition = 'none';
+    sheetEl.style.transform = `translateY(${pull.dy}px)`;
+    backdropEl.style.transition = 'none';
+    backdropEl.style.opacity = String(Math.max(0, 1 - pull.dy / (sheetEl.offsetHeight || 600)));
+  }, { passive: false });
+  const endPull = () => {
+    if (!pull) return;
+    const { active, dy, samples } = pull;
+    pull = null;
+    if (!active) return;
+    // 直前0.1秒の下向きの速さ（px/ms）
+    const [t1, y1] = samples[0];
+    const [t2, y2] = samples[samples.length - 1];
+    const v = (y2 - y1) / Math.max(16, t2 - t1);
+    // ある程度引いたか、下に払ったら閉じる。少しだけなら元に戻す
+    if (dy > 80 || (v > 0.3 && dy > 20) || dy > sheetEl.offsetHeight * 0.25) {
+      closeSheet();
+    } else {
+      sheetEl.style.transition = 'transform .28s cubic-bezier(.2,.9,.3,1.15)';
+      sheetEl.style.transform = '';
+      backdropEl.style.transition = 'opacity .28s ease';
+      backdropEl.style.opacity = '';
+      setTimeout(() => { if (!pull) { sheetEl.style.transition = ''; backdropEl.style.transition = ''; } }, 300);
+    }
+  };
+  sheetEl.addEventListener('touchend', endPull, { passive: true });
+  sheetEl.addEventListener('touchcancel', endPull, { passive: true });
 
   // アプリに戻ってきたら新しい号を確認
   document.addEventListener('visibilitychange', async () => {
