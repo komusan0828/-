@@ -147,14 +147,18 @@
     $('#chips').innerHTML = `<button class="chip${filter === 'all' ? ' on' : ''}" data-filter="all">すべて</button>` +
       present.map((c) => `<button class="chip${filter === c.id ? ' on' : ''}" data-cat="${c.id}" data-filter="${c.id}">${c.emoji} ${esc(c.name)}</button>`).join('');
 
-    const groups = (filter === 'all' ? present : present.filter((c) => c.id === filter));
-    const hint = store.get('swiped', false) ? '' : '<p class="swipe-hint" id="swipe-hint">👈 左右にスワイプでカテゴリを移動できます 👉</p>';
-    $('#list').innerHTML = hint + groups.map((c) => {
+    // カテゴリごとのページを横に並べる（記事一覧を左右にめくって移動）
+    const section = (c) => {
       const list = items.filter((i) => i.category === c.id);
       const done = list.filter((i) => readIds.has(i.id)).length;
       return `<div class="cat-head" data-cat="${c.id}"><span class="dot">${c.emoji}</span>${esc(c.name)}<span class="count">${done}/${list.length}</span></div>` +
         list.map(cardHTML).join('');
-    }).join('');
+    };
+    const pages = [{ id: 'all', html: present.map(section).join('') }, ...present.map((c) => ({ id: c.id, html: section(c) }))];
+    const hint = store.get('swiped', false) ? '' : '<p class="swipe-hint" id="swipe-hint">👈 記事を左右にめくるとカテゴリを移動できます 👉</p>';
+    $('#list').innerHTML = hint + `<div class="pager" id="pager">${pages.map((pg) => `<section class="page" data-page="${pg.id}">${pg.html}</section>`).join('')}</div>`;
+    if (!filterOrder().includes(filter)) filter = 'all';
+    syncPager(false);
   }
 
   function renderLocal() {
@@ -299,6 +303,7 @@
     view = v;
     for (const s of document.querySelectorAll('.view')) s.hidden = s.id !== 'view-' + v;
     for (const b of document.querySelectorAll('.tabbar button')) b.classList.toggle('on', b.dataset.view === v);
+    if (v === 'home') syncPager(false);
     window.scrollTo({ top: 0 });
   }
 
@@ -314,9 +319,7 @@
     if (t.dataset.save) return toggleSave(t.dataset.save);
     if (t.dataset.view) return show(t.dataset.view);
     if (t.dataset.filter) {
-      const order = filterOrder();
-      const dir = Math.sign(order.indexOf(t.dataset.filter) - order.indexOf(filter));
-      setFilter(t.dataset.filter, dir);
+      setFilter(t.dataset.filter);
       return;
     }
     if (t.classList.contains('slot') && t.dataset.id) return openEdition(t.dataset.id);
@@ -325,87 +328,63 @@
   });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSheet(); });
 
-  // ---------- 左右スワイプでカテゴリを移動 ----------
+  // ---------- 記事一覧を左右にめくってカテゴリを移動 ----------
   function filterOrder() {
     const items = edition?.items || [];
     return ['all', ...cats.filter((c) => c.id !== 'saitama' && items.some((i) => i.category === c.id)).map((c) => c.id)];
   }
-  function setFilter(next, dir = 0) {
+  // いま表示しているページに合わせて、ボタンの色・ページの高さ・めくり位置をそろえる
+  let pagerLock = false;
+  function syncPager(smooth) {
+    const pager = $('#pager');
+    if (!pager) return;
+    const idx = Math.max(0, filterOrder().indexOf(filter));
+    const page = pager.children[idx];
+    if (page) pager.style.height = page.offsetHeight + 'px';
+    const left = idx * pager.clientWidth;
+    if (Math.abs(pager.scrollLeft - left) > 2) {
+      pagerLock = true;
+      pager.scrollTo({ left, behavior: smooth ? 'smooth' : 'auto' });
+      setTimeout(() => { pagerLock = false; }, smooth ? 450 : 50);
+    }
+    for (const b of document.querySelectorAll('#chips .chip')) b.classList.toggle('on', b.dataset.filter === filter);
+    const chips = $('#chips');
+    const chip = chips.querySelector(`[data-filter="${filter}"]`);
+    if (chip) chips.scrollTo({ left: chip.offsetLeft - (chips.clientWidth - chip.offsetWidth) / 2, behavior: 'smooth' });
+  }
+  // 下までスクロールしていたら、新しいカテゴリの先頭が見える位置まで戻す
+  function scrollToPagerTop() {
+    const pager = $('#pager');
+    if (!pager) return;
+    const chipsBottom = $('#chips').getBoundingClientRect().bottom;
+    const top = pager.getBoundingClientRect().top;
+    if (top < chipsBottom) window.scrollTo({ top: window.scrollY + top - chipsBottom - 4 });
+  }
+  function setFilter(next) {
     if (next === filter) return;
     filter = next;
-    renderHome();
-    const list = $('#list');
-    list.classList.remove('slide-l', 'slide-r');
-    void list.offsetWidth;
-    if (dir) list.classList.add(dir > 0 ? 'slide-l' : 'slide-r');
-    // 選んだカテゴリのボタンが見えるように横に寄せる
-    const chips = $('#chips');
-    const chip = chips.querySelector(`[data-filter="${next}"]`);
-    if (chip) chips.scrollTo({ left: chip.offsetLeft - (chips.clientWidth - chip.offsetWidth) / 2, behavior: 'smooth' });
-    // カテゴリの先頭が見える位置へ
-    if (window.scrollY > chips.offsetTop) window.scrollTo({ top: chips.offsetTop - 4 });
+    syncPager(true);
+    scrollToPagerTop();
   }
-  function nudge(dir) {
-    const list = $('#list');
-    list.classList.remove('nudge-l', 'nudge-r');
-    void list.offsetWidth;
-    list.classList.add(dir > 0 ? 'nudge-l' : 'nudge-r');
-  }
-  // 指の動きに合わせて一覧を横に動かし、離したときに十分動いていればカテゴリを切り替える
-  let sw = null;
-  const home = $('#view-home');
-  const listEl = $('#list');
-  function resetDrag(animate) {
-    listEl.style.transition = animate ? 'transform .2s ease, opacity .2s ease' : '';
-    listEl.style.transform = '';
-    listEl.style.opacity = '';
-    if (animate) setTimeout(() => { listEl.style.transition = ''; }, 220);
-  }
-  home.addEventListener('touchstart', (e) => {
-    const t = e.touches[0];
-    // 横に動く「いちばんの話題」とカテゴリボタン、画面の左端（戻る操作）は対象外
-    if (e.touches.length > 1 || e.target.closest('.hero, .chips') || t.clientX < 16) { sw = null; return; }
-    sw = { x: t.clientX, y: t.clientY, lock: null, dx: 0 };
-  }, { passive: true });
-  home.addEventListener('touchmove', (e) => {
-    if (!sw) return;
-    const t = e.touches[0];
-    const dx = t.clientX - sw.x;
-    const dy = t.clientY - sw.y;
-    if (!sw.lock) {
-      if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
-      sw.lock = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y'; // 最初に動いた向きで、横スワイプか縦スクロールかを決める
-    }
-    if (sw.lock !== 'x') return;
-    e.preventDefault(); // 横に動かしている間は縦にスクロールさせない
-    sw.dx = dx;
-    const order = filterOrder();
-    const atEdge = (dx > 0 && order.indexOf(filter) === 0) || (dx < 0 && order.indexOf(filter) === order.length - 1);
-    const move = atEdge ? dx * 0.15 : dx * 0.6;
-    listEl.style.transition = 'none';
-    listEl.style.transform = `translateX(${move}px)`;
-    listEl.style.opacity = String(1 - Math.min(Math.abs(move) / 500, 0.35));
-  }, { passive: false });
-  const endSwipe = () => {
-    if (!sw) return;
-    const { lock, dx } = sw;
-    sw = null;
-    if (lock !== 'x') return;
-    const order = filterOrder();
-    const dir = dx < 0 ? 1 : -1; // 左へスワイプ＝次のカテゴリ
-    const i = order.indexOf(filter) + dir;
-    if (Math.abs(dx) < 50 || i < 0 || i >= order.length) {
-      resetDrag(true);
-      if (Math.abs(dx) >= 50) nudge(dir);
-      return;
-    }
-    resetDrag(false);
-    setFilter(order[i], dir);
-    store.set('swiped', true);
-    $('#swipe-hint')?.remove();
-  };
-  home.addEventListener('touchend', endSwipe, { passive: true });
-  home.addEventListener('touchcancel', () => { sw = null; resetDrag(true); }, { passive: true });
+  // 指でめくり終わったら、そのページのカテゴリに切り替える
+  let pagerTimer;
+  document.addEventListener('scroll', (e) => {
+    const pager = e.target;
+    if (!(pager instanceof Element) || pager.id !== 'pager' || pagerLock) return;
+    clearTimeout(pagerTimer);
+    pagerTimer = setTimeout(() => {
+      const idx = Math.round(pager.scrollLeft / pager.clientWidth);
+      const next = filterOrder()[idx];
+      if (!next || next === filter) return;
+      filter = next;
+      syncPager(false);
+      scrollToPagerTop();
+      store.set('swiped', true);
+      $('#swipe-hint')?.remove();
+    }, 120);
+  }, true);
+  window.addEventListener('resize', () => syncPager(false));
+  document.fonts?.ready.then(() => syncPager(false));
 
   // シートを下にスワイプで閉じる
   let startY = null;

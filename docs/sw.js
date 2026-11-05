@@ -1,5 +1,5 @@
 // オフラインでも最後に見た号を開けるようにする
-const CACHE = 'mn-v5';
+const CACHE = 'mn-v6';
 const SHELL = ['./', 'index.html', 'style.css', 'app.js', 'manifest.webmanifest', 'icons/icon.svg'];
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));

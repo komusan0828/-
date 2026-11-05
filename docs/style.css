@@ -208,15 +208,14 @@ main { max-width: 640px; margin: 0 auto; padding: 0 16px; }
 }
 .day-row button small { display: block; font-size: 11px; color: var(--ink3); font-weight: 500; }
 
-/* カテゴリ切り替えのアニメーション */
-.slide-l { animation: slideL .28s cubic-bezier(.2,.8,.3,1); }
-.slide-r { animation: slideR .28s cubic-bezier(.2,.8,.3,1); }
-@keyframes slideL { from { transform: translateX(48px); opacity: 0; } }
-@keyframes slideR { from { transform: translateX(-48px); opacity: 0; } }
-.nudge-l { animation: nudgeL .3s; }
-.nudge-r { animation: nudgeR .3s; }
-@keyframes nudgeL { 40% { transform: translateX(-14px); } }
-@keyframes nudgeR { 40% { transform: translateX(14px); } }
+/* カテゴリごとのページ（左右にめくる） */
+.pager {
+  display: flex; align-items: flex-start; overflow-x: auto; overflow-y: hidden;
+  scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none;
+  margin: 0 -16px; transition: height .25s ease;
+}
+.pager::-webkit-scrollbar { display: none; }
+.page { flex: 0 0 100%; min-width: 100%; padding: 0 16px 12px; scroll-snap-align: start; scroll-snap-stop: always; }
 .swipe-hint { text-align: center; font-size: 12.5px; color: var(--ink3); margin: 2px 0 6px; }
 
 .empty { text-align: center; color: var(--ink3); padding: 40px 10px; font-size: 14px; }
