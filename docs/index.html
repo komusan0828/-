@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>まいにちニュース</title>
+  <meta name="description" content="会話のタネになるニュースを、朝・昼・夜にお届け">
+  <meta name="theme-color" content="#fff7ef" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1c1917" media="(prefers-color-scheme: dark)">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="まいにちニュース">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-180.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="top-row">
+      <div>
+        <p class="greet" id="greet">こんにちは</p>
+        <h1 class="date" id="date"></h1>
+      </div>
+      <div class="streak" id="streak" title="連続で読んだ日数"></div>
+    </div>
+    <div class="slots" id="slots" role="tablist" aria-label="号を選ぶ"></div>
+  </header>
+
+  <main id="main">
+    <section id="view-home" class="view">
+      <div class="intro" id="intro" hidden>
+        <div class="owl" aria-hidden="true">🦉</div>
+        <p id="intro-text"></p>
+      </div>
+
+      <div class="progress" id="progress">
+        <div class="progress-label"><span id="progress-text"></span><span id="progress-badge"></span></div>
+        <div class="bar"><i id="progress-bar"></i></div>
+      </div>
+
+      <h2 class="sec-title">いちばんの話題 <small>まずはこの3つ</small></h2>
+      <div class="hero" id="hero"></div>
+
+      <nav class="chips" id="chips" aria-label="カテゴリ"></nav>
+      <div id="list"></div>
+    </section>
+
+    <section id="view-saitama" class="view" hidden>
+      <div class="local-head">
+        <div class="local-emoji">🏯</div>
+        <div>
+          <h2>埼玉・地元のニュース</h2>
+          <p>川越・所沢まわりを中心に、おでかけ情報も</p>
+        </div>
+      </div>
+      <div id="local-list"></div>
+    </section>
+
+    <section id="view-saved" class="view" hidden>
+      <h2 class="page-title">⭐ 保存した記事</h2>
+      <div id="saved-list"></div>
+    </section>
+
+    <section id="view-past" class="view" hidden>
+      <h2 class="page-title">📚 これまでの号</h2>
+      <div id="past-list"></div>
+    </section>
+  </main>
+
+  <nav class="tabbar" id="tabbar">
+    <button data-view="home" class="on"><span>🏠</span>ニュース</button>
+    <button data-view="saitama"><span>📍</span>埼玉</button>
+    <button data-view="saved"><span>⭐</span>保存</button>
+    <button data-view="past"><span>📚</span>過去の号</button>
+  </nav>
+
+  <div class="sheet-backdrop" id="backdrop" hidden></div>
+  <article class="sheet" id="sheet" aria-modal="true" role="dialog" hidden>
+    <div class="grip" aria-hidden="true"></div>
+    <button class="close" id="close" aria-label="閉じる">✕</button>
+    <div id="sheet-body"></div>
+  </article>
+
+  <div class="toast" id="toast" hidden></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
