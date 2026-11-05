@@ -455,6 +455,11 @@ function pickProvider() {
       batchSize: 4, bodyLimit: 1800, concurrency: 2, shapeBatch: JSON_SHAPE_BATCH, shapeIntro: JSON_SHAPE_INTRO,
       batchSchema: LooseBatch, introSchema: Intro,
       check: chooseGeminiModel,
+      // 頼み直しの前に少し間をあけ、いちばん良いモデルからもう一度試す
+      beforeRetry: async () => {
+        await sleep(Number(process.env.NEWS_RETRY_PAUSE_MS ?? 15000));
+        if (geminiCandidates.length) geminiModel = geminiCandidates[0];
+      },
       ask: async (prompt, schema) => {
         const out = await askGemini(prompt, schema);
         await sleep(Number(process.env.NEWS_AI_GAP_MS ?? 4000));
@@ -487,8 +492,12 @@ async function enrich(items) {
 
   let done = 0;
   let tried = 0;
-  const deadline = Date.now() + Number(process.env.NEWS_AI_BUDGET_SEC || 360) * 1000;
-  await mapLimit(batches, ai.concurrency, async (idxs) => {
+  const started = Date.now();
+  const budget = Number(process.env.NEWS_AI_BUDGET_SEC || 480) * 1000;
+  const firstDeadline = started + budget * 0.65; // 1回目はここまで。残りの時間は頼み直しに使う
+  const finalDeadline = started + budget;
+
+  async function runBatch(idxs, deadline, label = '') {
     if (Date.now() > deadline) return; // 時間切れ：残りは記事の書き出しで表示
     const t0 = Date.now();
     tried++;
@@ -496,9 +505,10 @@ async function enrich(items) {
     const prompt = `${GUIDE}\n\n${FIELDS}\n\n${ai.shapeBatch}\n\n記事一覧:\n\n${list}`;
     try {
       const out = await ai.ask(prompt, ai.batchSchema);
+      let n = 0;
       for (const a of out.items) {
         const it = items[a.i];
-        if (!it || !idxs.includes(a.i)) continue;
+        if (!it || !idxs.includes(a.i) || it.summary) continue;
         Object.assign(it, {
           summary: a.summary,
           points: (a.points || []).slice(0, 3),
@@ -508,13 +518,27 @@ async function enrich(items) {
           emoji: a.emoji,
         });
         done++;
+        n++;
       }
-      console.log(`  ${items[idxs[0]].categoryName}: ${out.items.length}件 OK（${Math.round((Date.now() - t0) / 1000)}秒）`);
+      console.log(`  ${label}${items[idxs[0]].categoryName}: ${n}件 OK（${Math.round((Date.now() - t0) / 1000)}秒）`);
     } catch (e) {
-      console.log(`  AI 要約に失敗（${items[idxs[0]].categoryName}）: ${e.message}`);
+      console.log(`  ${label}AI 要約に失敗（${items[idxs[0]].categoryName}）: ${e.message}`);
     }
-  });
-  console.log(`AI 要約を ${done}/${items.length} 件に付けました（${tried}/${batches.length} 回依頼${tried < batches.length ? '、時間切れで残りは省略' : ''}）`);
+  }
+
+  await mapLimit(batches, ai.concurrency, (idxs) => runBatch(idxs, firstDeadline));
+
+  // 取りこぼした記事を、少しずつ・1件ずつ頼み直す
+  const missing = items.map((it, i) => (it.summary ? -1 : i)).filter((i) => i >= 0);
+  if (missing.length && Date.now() < finalDeadline) {
+    console.log(`頼み直し: ${missing.length} 件`);
+    if (ai.beforeRetry) await ai.beforeRetry();
+    const retry = [];
+    for (let k = 0; k < missing.length; k += 2) retry.push(missing.slice(k, k + 2));
+    await mapLimit(retry, 1, (idxs) => runBatch(idxs, finalDeadline, '（再）'));
+  }
+  const left = items.filter((it) => !it.summary).length;
+  console.log(`AI 要約を ${done}/${items.length} 件に付けました（${tried} 回依頼${left ? `、${left} 件は書き出し表示` : ''}）`);
   if (!done) return null;
 
   let intro = '';
