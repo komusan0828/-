@@ -19,7 +19,12 @@ GitHub Actions が日本時間 6:30 / 11:30 / 18:30 ごろに NHK・Yahoo!ニュ
    （Settings → General → Danger Zone → Change visibility）。中身はニュースの見出しだけで個人情報は含みません。
    GitHub Pro なら Private のままで OK。
 2. **Pages を有効に**：Settings → Pages → Source を「**GitHub Actions**」にする
-3. **（おすすめ）AI 要約を有効に**：Settings → Secrets and variables → Actions → New repository secret で
+3. **AI 要約（無料）**：何も設定しなくても、GitHub の無料 AI（GitHub Models）で
+   記事本文を読んだ要約・ポイント・会話のネタが付きます（1日の回数に上限があり、混雑時は一部の記事が書き出し表示になります）。
+   使う AI は Variables タブで `NEWS_FREE_MODEL` を作ると変えられます（未設定なら `openai/gpt-4o-mini`）。
+   止めたいときは `NEWS_FREE_AI` を `off` に。
+
+   **（任意・有料）Claude で要約**：Settings → Secrets and variables → Actions → New repository secret で
    名前 `ANTHROPIC_API_KEY`、値に Anthropic の API キーを登録。
    記事本文を AI が読み、リンクを開かなくても読み切れる要約・ポイント・会話のネタを付けます。
    未設定のときは、記事の書き出し（サイトが公開している説明文）を表示します。

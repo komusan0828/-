@@ -270,16 +270,11 @@ const FIELDS = `各記事について:
 - emoji: 内容に合う絵文字1つ
 - i: 記事の番号（そのまま返す）`;
 
-function articleText(it, i) {
+function articleText(it, i, bodyLimit) {
   const parts = [`[${i}] ${it.title}（${it.source || '出典不明'}）`];
   if (it.desc) parts.push(`概要: ${it.desc}`);
-  if (it.body) parts.push(`本文:\n${it.body}`);
+  if (it.body) parts.push(`本文:\n${it.body.slice(0, bodyLimit)}`);
   return parts.join('\n');
-}
-
-function aiClient() {
-  if (!process.env.ANTHROPIC_API_KEY) return null;
-  return new Anthropic();
 }
 
 // 安全チェックで断られたときに、別のモデルで自動でやり直す設定（対応モデルだけ）
@@ -290,7 +285,7 @@ function fallbackParams() {
   return {};
 }
 
-async function ask(client, prompt, schema) {
+async function askClaude(client, prompt, schema) {
   const res = await client.beta.messages.parse({
     model: MODEL,
     max_tokens: 16000,
@@ -304,32 +299,123 @@ async function ask(client, prompt, schema) {
   return res.parsed_output;
 }
 
+// ---- 無料: GitHub Models（GitHub Actions の GITHUB_TOKEN で使える。1日の回数に上限あり） ----
+const FREE_MODEL = process.env.NEWS_FREE_MODEL || 'openai/gpt-4o-mini';
+const LooseNote = z.object({
+  i: z.coerce.number().int(),
+  summary: z.string().min(1),
+  points: z.array(z.string()).default([]),
+  why: z.string().default(''),
+  talk: z.string().default(''),
+  term: z.object({ word: z.string(), meaning: z.string() }).nullable().optional(),
+  emoji: z.string().default(''),
+});
+const LooseBatch = z.object({ items: z.array(LooseNote) });
+const JSON_SHAPE_BATCH = `返答は次の形の JSON オブジェクトだけにしてください（前後に文章を付けない）:
+{"items":[{"i":0,"summary":"...","points":["...","..."],"why":"...","talk":"...","term":{"word":"...","meaning":"..."},"emoji":"..."}]}
+term が無いときは null にしてください。`;
+const JSON_SHAPE_INTRO = '返答は {"intro":"..."} の形の JSON オブジェクトだけにしてください。';
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+async function askGitHub(prompt, schema) {
+  for (let attempt = 0; attempt < 4; attempt++) {
+    const res = await fetch('https://models.github.ai/inference/chat/completions', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({
+        model: FREE_MODEL,
+        messages: [
+          { role: 'system', content: 'あなたは日本語のニュース編集者です。指示された形の JSON オブジェクトだけを返します。' },
+          { role: 'user', content: prompt },
+        ],
+        response_format: { type: 'json_object' },
+        max_tokens: 3500,
+        temperature: 0.3,
+      }),
+      signal: AbortSignal.timeout(120000),
+    });
+    if (res.status === 429) {
+      // 混み合っているときは少し待ってやり直す
+      const wait = Math.min(90, Number(res.headers.get('retry-after')) || 20 * (attempt + 1));
+      console.log(`  （混雑のため ${wait} 秒待ちます）`);
+      await sleep(wait * 1000);
+      continue;
+    }
+    if (!res.ok) throw new Error(`HTTP ${res.status} ${(await res.text()).slice(0, 200)}`);
+    const data = await res.json();
+    const text = data.choices?.[0]?.message?.content || '';
+    let json;
+    try {
+      json = JSON.parse(text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1));
+    } catch {
+      throw new Error('回答を読み取れませんでした');
+    }
+    const parsed = schema.safeParse(json);
+    if (!parsed.success) throw new Error('回答の形が想定と違いました');
+    return parsed.data;
+  }
+  throw new Error('混雑が続いたのであきらめました');
+}
+
+// 使える AI を選ぶ（有料の Claude キーがあればそちら、無ければ GitHub の無料枠）
+function pickProvider() {
+  if (process.env.ANTHROPIC_API_KEY) {
+    const client = new Anthropic();
+    return {
+      label: `Claude（${MODEL}）`,
+      batchSize: 8, bodyLimit: 2500, concurrency: 3, shapeBatch: '', shapeIntro: '',
+      batchSchema: BatchNotes, introSchema: Intro,
+      ask: (prompt, schema) => askClaude(client, prompt, schema),
+    };
+  }
+  if (process.env.GITHUB_TOKEN && process.env.NEWS_FREE_AI !== 'off') {
+    // 無料枠は1回に送れる量が少ないので、3本ずつ・本文は短めに
+    return {
+      label: `GitHub Models 無料枠（${FREE_MODEL}）`,
+      batchSize: 3, bodyLimit: 1200, concurrency: 2, shapeBatch: JSON_SHAPE_BATCH, shapeIntro: JSON_SHAPE_INTRO,
+      batchSchema: LooseBatch, introSchema: Intro,
+      ask: askGitHub,
+    };
+  }
+  return null;
+}
+
 async function enrich(items) {
-  const client = aiClient();
-  if (!client) {
-    console.log('ANTHROPIC_API_KEY が無いので AI 要約はスキップします（記事の書き出しを表示します）');
+  const ai = pickProvider();
+  if (!ai) {
+    console.log('使える AI が無いので AI 要約はスキップします（記事の書き出しを表示します）');
     return null;
   }
-  console.log(`AI 要約を作ります（モデル: ${MODEL}）`);
+  console.log(`AI 要約を作ります（${ai.label}）`);
 
-  // カテゴリごとにまとめて頼む
+  // カテゴリごとに、決まった本数ずつまとめて頼む
   const groups = new Map();
   items.forEach((it, i) => {
     if (!groups.has(it.category)) groups.set(it.category, []);
     groups.get(it.category).push(i);
   });
+  const batches = [];
+  for (const idxs of groups.values()) {
+    for (let k = 0; k < idxs.length; k += ai.batchSize) batches.push(idxs.slice(k, k + ai.batchSize));
+  }
 
   let done = 0;
-  await mapLimit([...groups.values()], 3, async (idxs) => {
-    const prompt = `${GUIDE}\n\n${FIELDS}\n\n記事一覧:\n\n${idxs.map((i) => articleText(items[i], i)).join('\n\n---\n\n')}`;
+  await mapLimit(batches, ai.concurrency, async (idxs) => {
+    const list = idxs.map((i) => articleText(items[i], i, ai.bodyLimit)).join('\n\n---\n\n');
+    const prompt = `${GUIDE}\n\n${FIELDS}\n\n${ai.shapeBatch}\n\n記事一覧:\n\n${list}`;
     try {
-      const out = await ask(client, prompt, BatchNotes);
+      const out = await ai.ask(prompt, ai.batchSchema);
       for (const a of out.items) {
         const it = items[a.i];
         if (!it || !idxs.includes(a.i)) continue;
         Object.assign(it, {
           summary: a.summary,
-          points: a.points.slice(0, 3),
+          points: (a.points || []).slice(0, 3),
           why: a.why,
           talk: a.talk,
           term: a.term && a.term.word ? a.term : null,
@@ -341,16 +427,15 @@ async function enrich(items) {
       console.log(`  AI 要約に失敗（${items[idxs[0]].categoryName}）: ${e.message}`);
     }
   });
-  console.log(`AI 要約を ${done}/${items.length} 件に付けました`);
+  console.log(`AI 要約を ${done}/${items.length} 件に付けました（${batches.length} 回の依頼）`);
   if (!done) return null;
 
   let intro = '';
   try {
     const list = items.filter((it) => it.summary).map((it) => `・(${it.categoryName}) ${it.title}`).join('\n');
-    const out = await ask(
-      client,
-      `${GUIDE}\n\n今回のニュース一覧をふまえて、アプリの冒頭に出す「ひとこと」(intro) を、親しみやすく40〜80字で書いてください。\n\n${list}`,
-      Intro,
+    const out = await ai.ask(
+      `${GUIDE}\n\n今回のニュース一覧をふまえて、アプリの冒頭に出す「ひとこと」(intro) を、親しみやすく40〜80字で書いてください。\n${ai.shapeIntro}\n\n${list}`,
+      ai.introSchema,
     );
     intro = out.intro;
   } catch (e) {
