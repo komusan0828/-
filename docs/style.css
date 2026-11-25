@@ -15,6 +15,7 @@
   --c-world: #149a8a;
   --c-society: #8a63d2;
   --c-life: #e0558a;
+  --c-fun: #f29a16;
   --c-business: #2f86c9;
   --c-science: #3a9f55;
   --radius: 18px;
@@ -37,6 +38,7 @@
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+[hidden] { display: none !important; }
 html { -webkit-text-size-adjust: 100%; }
 body {
   margin: 0;
@@ -221,6 +223,7 @@ button.cal-cell:active { transform: scale(.94); }
 [data-cat="world"] { --cc: var(--c-world); }
 [data-cat="society"] { --cc: var(--c-society); }
 [data-cat="life"] { --cc: var(--c-life); }
+[data-cat="fun"] { --cc: var(--c-fun); }
 [data-cat="business"] { --cc: var(--c-business); }
 [data-cat="science"] { --cc: var(--c-science); }
 

@@ -6,7 +6,7 @@ import path from 'node:path';
 import Anthropic from '@anthropic-ai/sdk';
 import { betaZodOutputFormat } from '@anthropic-ai/sdk/helpers/beta/zod';
 import { z } from 'zod';
-import { CATEGORIES, BUZZ_FEEDS, NG_WORDS, NG_WORDS_LOCAL, NG_SOURCES, LOCAL_BOOST } from './feeds.mjs';
+import { CATEGORIES, BUZZ_FEEDS, NG_WORDS, NG_WORDS_LOCAL, NG_WORDS_FUN, NG_SOURCES, LOCAL_BOOST } from './feeds.mjs';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const DATA = path.join(ROOT, 'docs', 'data');
@@ -260,7 +260,8 @@ const GUIDE = `あなたは、ニュースをやさしく解説する編集者�
 - 背景の説明は、一般によく知られていることに限る。不確かなことは書かない
 - 本文がなく見出ししか無い記事は、見出しから確実に言えることだけを短く書く
 - 専門用語を避け、中学生にもわかる言葉で、です・ます調
-- 記事の文章を長く書き写さず、自分の言葉でまとめる`;
+- 記事の文章を長く書き写さず、自分の言葉でまとめる
+- 「ほっこり・話題」の記事は、くすっと笑える・ほっこりするポイントが伝わるよう明るめの口調で。talk は思わず人に話したくなる一言に`;
 
 const FIELDS = `各記事について:
 - summary: 記事を開かなくても読み切れる要約。「いつ・どこで・誰が・何をした・どうなる」がわかるように3〜5文（150〜250字）
@@ -272,7 +273,7 @@ const FIELDS = `各記事について:
 - i: 記事の番号（そのまま返す）`;
 
 function articleText(it, i, bodyLimit) {
-  const parts = [`[${i}] ${it.title}（${it.source || '出典不明'}）`];
+  const parts = [`[${i}] 【${it.categoryName}】${it.title}（${it.source || '出典不明'}）`];
   if (it.desc) parts.push(`概要: ${it.desc}`);
   if (it.body) parts.push(`本文:\n${it.body.slice(0, bodyLimit)}`);
   return parts.join('\n');
@@ -614,6 +615,7 @@ async function main() {
     if (it.time && now - it.time > maxAge(it.cat)) return false;
     const ng = it.cat.local ? NG_WORDS_LOCAL : NG_WORDS;
     if (ng.some((w) => it.title.includes(w))) return false;
+    if (it.cat.fun && NG_WORDS_FUN.some((w) => it.title.includes(w) || (it.source || '').includes(w))) return false;
     if (/[\[［]\d{3}[\dA-Z][\]］]|[（(]\d{3}[A-Z][)）]/.test(it.title)) return false; // 証券コード付きの開示情報
     if (NG_SOURCES.some((w) => (it.source || '').includes(w))) return false;
     if (recentLinks.has(it.link)) return false;
@@ -660,11 +662,13 @@ async function main() {
   chosen.sort((a, b) => order.get(a.cat.id) - order.get(b.cat.id) || b.score - a.score);
 
   // いちばん話題の3本（埼玉以外から）
-  const top = [...chosen]
-    .filter((c) => !c.cat.local)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 3)
-    .map((c) => c.link);
+  // いちばんの話題: 大きなニュース2本 ＋ ほっこり・話題から1本（息抜き枠）
+  const byScore = (a, b) => b.score - a.score;
+  const bestFun = chosen.filter((c) => c.cat.fun).sort(byScore)[0];
+  const top = [
+    ...chosen.filter((c) => !c.cat.local && !c.cat.fun).sort(byScore).slice(0, bestFun ? 2 : 3),
+    ...(bestFun ? [bestFun] : []),
+  ].map((c) => c.link);
 
   const items = chosen.map((it, i) => ({
     id: `${id}-${i}`,
