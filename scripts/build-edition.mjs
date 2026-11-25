@@ -6,7 +6,7 @@ import path from 'node:path';
 import Anthropic from '@anthropic-ai/sdk';
 import { betaZodOutputFormat } from '@anthropic-ai/sdk/helpers/beta/zod';
 import { z } from 'zod';
-import { CATEGORIES, BUZZ_FEEDS, NG_WORDS, NG_WORDS_LOCAL, NG_WORDS_FUN, NG_SOURCES, LOCAL_BOOST } from './feeds.mjs';
+import { CATEGORIES, BUZZ_FEEDS, NG_WORDS, NG_WORDS_LOCAL, NG_WORDS_FUN, NG_SOURCES, NG_SOURCES_ENT, LOCAL_BOOST } from './feeds.mjs';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const DATA = path.join(ROOT, 'docs', 'data');
@@ -70,6 +70,8 @@ function parseRss(xml, feedUrl) {
       }
       desc = '';
     }
+    // 「画像・写真 | 」などの前置きや「8枚目」などの後ろの飾りを外す
+    title = title.replace(/^(画像・写真|写真|画像|動画)\s*[|｜]\s*/, '').replace(/\s*\d+枚目$/, '').trim();
     if (!source) {
       if (feedUrl.includes('nhk.or.jp')) source = 'NHK';
       else if (feedUrl.includes('yahoo.co.jp')) source = 'Yahoo!ニュース';
@@ -472,6 +474,36 @@ function pickProvider() {
   return null;
 }
 
+// 「ほっこり・話題」の候補から、本当に明るくて話題にしやすいものを AI に選んでもらう（使えなければ null）
+const FunPicks = z.object({ picks: z.array(z.number()) });
+async function aiPickFun(pool, want) {
+  const ai = pickProvider();
+  if (!ai) return null;
+  if (ai.check) await ai.check();
+  const list = pool.map((it, i) => `[${i}] ${it.title}（${it.source || '出典不明'}）`).join('\n');
+  const prompt = `あなたはニュースアプリの編集者です。30代後半の女性が、ママ友・パート仲間・家族との会話で「ねえ聞いて」と気軽に話せる、明るいニュースを選んでいます。
+次の候補から、くすっと笑える・ほっこりする・意外で人に話したくなるものを最大${want}本選び、良い順に番号で返してください。
+
+選ばないもの:
+- 芸能人・タレント・アイドル・俳優・YouTuber が中心の話題
+- 事件・事故・病気・訃報・災害など暗い話、政治や経済の硬い話、専門的すぎる話
+- 商品やセールの宣伝だけの記事
+- 同じ出来事を扱った記事の2本目以降（1本だけ選ぶ）
+当てはまるものが少なければ、無理に${want}本選ばなくてかまいません。
+${ai.shapeBatch ? '返答は {"picks":[番号, ...]} の形の JSON オブジェクトだけにしてください。' : ''}
+
+候補:
+${list}`;
+  try {
+    const out = await ai.ask(prompt, FunPicks);
+    const seen = new Set();
+    return out.picks.map((n) => Math.trunc(n)).filter((n) => n >= 0 && n < pool.length && !seen.has(n) && seen.add(n)).slice(0, want);
+  } catch (e) {
+    console.log(`  ほっこり・話題の AI 選定に失敗（キーワードの点数順で選びます）: ${e.message}`);
+    return null;
+  }
+}
+
 async function enrich(items) {
   const ai = pickProvider();
   if (!ai) {
@@ -618,6 +650,7 @@ async function main() {
     if (it.cat.fun && NG_WORDS_FUN.some((w) => it.title.includes(w) || (it.source || '').includes(w))) return false;
     if (/[\[［]\d{3}[\dA-Z][\]］]|[（(]\d{3}[A-Z][)）]/.test(it.title)) return false; // 証券コード付きの開示情報
     if (NG_SOURCES.some((w) => (it.source || '').includes(w))) return false;
+    if (!it.cat.local && NG_SOURCES_ENT.some((w) => (it.source || '').includes(w))) return false;
     if (recentLinks.has(it.link)) return false;
     if (recentTitles.some((r) => similarity(r, it.bg) > 0.6)) return false;
     return true;
@@ -640,6 +673,25 @@ async function main() {
   }
   candidates.sort((a, b) => b.score - a.score);
 
+  // 「ほっこり・話題」は、候補の中から AI に本当に明るくて話題にしやすいものを選んでもらう
+  const funCat = CATEGORIES.find((c) => c.fun);
+  if (funCat) {
+    const pool = [];
+    for (const it of candidates) {
+      if (it.cat !== funCat || pool.some((p) => p.link === it.link || similarity(p.bg, it.bg) > 0.35)) continue;
+      pool.push(it);
+      if (pool.length >= 18) break;
+    }
+    const picks = pool.length ? await aiPickFun(pool, funCat.pick) : null;
+    if (picks) {
+      const keep = picks.map((i) => pool[i]).filter(Boolean);
+      for (const it of candidates) if (it.cat === funCat && !keep.includes(it)) it.drop = true;
+      keep.forEach((it, rank) => { it.score = 1000 - rank; });
+      candidates.sort((a, b) => b.score - a.score);
+      console.log(`ほっこり・話題: AI が ${pool.length} 件から ${keep.length} 件を選びました`);
+    }
+  }
+
   // カテゴリごとに選ぶ（全体で重複しないように）
   const chosen = [];
   const perCat = new Map();
@@ -647,6 +699,7 @@ async function main() {
     const n = perCat.get(it.cat.id) || 0;
     if (n >= it.cat.pick) continue;
     if (it.cat.local && it.score < 0) continue;
+    if (it.drop) continue;
     if (chosen.some((c) => c.link === it.link || similarity(c.bg, it.bg) > 0.5)) continue;
     chosen.push(it);
     perCat.set(it.cat.id, n + 1);
