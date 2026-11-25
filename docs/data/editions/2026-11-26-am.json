@@ -1,0 +1,1000 @@
+{
+ "id": "2026-11-26-am",
+ "date": "2026-11-26",
+ "slot": "am",
+ "label": "朝",
+ "generatedAt": "2026-11-25T19:57:38.430Z",
+ "intro": "",
+ "ai": true,
+ "categories": [
+  {
+   "id": "saitama",
+   "name": "埼玉",
+   "emoji": "📍"
+  },
+  {
+   "id": "fun",
+   "name": "ほっこり・話題",
+   "emoji": "😊"
+  },
+  {
+   "id": "politics",
+   "name": "政治",
+   "emoji": "🏛️"
+  },
+  {
+   "id": "economy",
+   "name": "経済",
+   "emoji": "💴"
+  },
+  {
+   "id": "world",
+   "name": "国際",
+   "emoji": "🌏"
+  },
+  {
+   "id": "society",
+   "name": "社会",
+   "emoji": "🏙️"
+  },
+  {
+   "id": "life",
+   "name": "くらし",
+   "emoji": "🛒"
+  },
+  {
+   "id": "business",
+   "name": "ビジネス",
+   "emoji": "💼"
+  },
+  {
+   "id": "science",
+   "name": "科学・IT",
+   "emoji": "🔬"
+  }
+ ],
+ "items": [
+  {
+   "id": "2026-11-26-am-0",
+   "category": "saitama",
+   "categoryName": "埼玉",
+   "title": "所沢市小手指にNSC(近隣型ショッピングセンター)が誕生「マチノマ小手指」竣工",
+   "link": "https://news.google.com/rss/articles/CBMiY0FVX3lxTE56RTFDbXZJcENFYVZaYjZXMm9FWlhQTlBBcXNfck5OMENrRmhCTExIV2hRYXZBa1NnZjZseVNtSTlnSXFVLXJXVWlkNXRjQWtXYnlMVm5rUG1raVhtNzZMVkRvVQ?oc=5",
+   "source": "ライブドアニュース",
+   "desc": "",
+   "img": "",
+   "time": "2026-11-24T04:00:00.000Z",
+   "buzz": 5,
+   "top": false,
+   "summary": "埼玉県所沢市小手指に、新しいショッピングセンター「マチノマ小手指」が完成しました。地域のお買い物に便利な近隣型の施設で、日常の買い物がより便利になりそうです。オープン時期などの詳細や入るお店の情報など、今後の新しいニュースにも注目が集まりそうです。",
+   "points": [
+    "所沢市小手指に新しい商業施設が完成",
+    "毎日の買い物に便利な近隣型センター",
+    "今後のオープン情報に注目"
+   ],
+   "why": "ご近所の買い出しスポットが増えることで、毎日の買い物がもっと便利になりそうです。",
+   "talk": "小手指に新しいショッピングセンターができるらしいよ！買い物しやすくなるといいよね。",
+   "term": null,
+   "emoji": "🛍️"
+  },
+  {
+   "id": "2026-11-26-am-1",
+   "category": "saitama",
+   "categoryName": "埼玉",
+   "title": "川越のひとり出版社『仙波書房』は、書籍の発行だけじゃなく、講座やガイドまでこなすのだ！",
+   "link": "https://news.google.com/rss/articles/CBMiX0FVX3lxTE0yd0tCSXZRLXRPYUVxNkFTT1V2N3hSNnd5MUp0WXdPS0pjMWFwWEpZODlzMFlPbWhEY2w2VGUyalI0LTFuV3dibWc3Um80Q2d5T2ZIM2lhZm5pS2V3TUZJ?oc=5",
+   "source": "千葉テレビ放送",
+   "desc": "",
+   "img": "",
+   "time": "2026-11-25T14:20:47.000Z",
+   "buzz": 2,
+   "top": false,
+   "summary": "埼玉県川越市にある個人出版社「仙波書房」のユニークな取り組みが注目されています。本を出版するだけでなく、講座を開いたり街のガイドツアーを行ったりと幅広く活躍中です。本の発行にとどまらない活動で、地域の魅力を元気に発信しています。",
+   "points": [
+    "川越市の「仙波書房」という小さな出版社",
+    "本を作るだけでなく講座や街ガイドも開催",
+    "地域に密着した活動で魅力を発信"
+   ],
+   "why": "身近な街の知らなかった魅力や、新しい楽しみ方を発見するきっかけになりそうです。",
+   "talk": "川越にある出版社、本を出すだけじゃなくて街のガイドツアーもやってるんだって！",
+   "term": {
+    "word": "ひとり出版社",
+    "meaning": "個人やごく少人数で企画から発行までを行う小さな出版社のこと。"
+   },
+   "emoji": "📖"
+  },
+  {
+   "id": "2026-11-26-am-2",
+   "category": "saitama",
+   "categoryName": "埼玉",
+   "title": "【速報】トルコ人の解体工ら3人逮捕 埼玉・川口市のヤードで無許可で産業廃棄物を積み替え保管か（日テレNEWS NNN）",
+   "link": "https://news.google.com/rss/articles/CBMif0FVX3lxTFBGdDFLZFJxNXh5ZUVrTnBEbDFKQTgwMFVDc24tRzROVXpaWkJ2ZTZhUWYxZnZmZ3VqQnBnSkdtX0tBeXVLMzA0YTFxb294Mm1rNG8xamxfUHFNMExQdFJWMDhVeEZEaW5FakdiNGZrRDVwbmVHcjJqMVFXcldEaHM?oc=5",
+   "source": "Yahoo!ニュース",
+   "desc": "",
+   "img": "",
+   "time": "2026-11-25T02:00:00.000Z",
+   "buzz": 4,
+   "top": false,
+   "summary": "埼玉県川口市にある作業場で、許可を受けずに産業廃棄物を積み替えて保管していたとして、トルコ人の解体工ら3人が逮捕されました。警察による詳しい取り調べが現場で行われています。地域のルールを守らない違法な廃棄物処理に対して、取り締まりが強まっています。",
+   "points": [
+    "川口市のヤードで違法な産廃保管が発覚",
+    "無許可で積み替えを行っていた容疑",
+    "トルコ人の解体工ら3人を逮捕"
+   ],
+   "why": "近隣の安全や環境を守るために、地域のルールがきちんと守られているかは大切ですね。",
+   "talk": "川口で許可なく産業廃棄物を保管していた人たちが逮捕されたみたいだね。",
+   "term": {
+    "word": "産業廃棄物",
+    "meaning": "事業活動に伴って出たごみのうち、法令で定められた廃棄物のこと。"
+   },
+   "emoji": "🚨"
+  },
+  {
+   "id": "2026-11-26-am-3",
+   "category": "saitama",
+   "categoryName": "埼玉",
+   "title": "ヒルトン、埼玉県初進出「ダブルツリーbyヒルトンさいたま浦和」を2027年夏に開業予定",
+   "link": "https://news.google.com/rss/articles/CBMiUEFVX3lxTE5Vb212eEpQa01nNmw5TDI5R1Q3SjZQc3ZEeTREUVc5QXhoajVfUVN6d0VfcVBjVFlrT2hTOGRIS05qem5BdENza1NRbGtkbW5o?oc=5",
+   "source": "AERA DIGITAL",
+   "desc": "",
+   "img": "",
+   "time": "2026-11-25T12:15:52.000Z",
+   "buzz": 3,
+   "top": false,
+   "summary": "世界的に有名なホテルチェーンのヒルトンが、埼玉県に初めて進出することが決まりました。2027年夏、さいたま市浦和区に「ダブルツリーbyヒルトンさいたま浦和」が開業する予定です。埼玉の新しいシンボルとして、観光やビジネスでの利用が期待されています。",
+   "points": [
+    "埼玉県にヒルトンホテルが初進出",
+    "さいたま市浦和区に2027年夏開業予定",
+    "ブランドは「ダブルツリーbyヒルトン」"
+   ],
+   "why": "浦和の街がさらに賑やかになり、家族のお出かけや特別な日の選択肢が増えそうです。",
+   "talk": "2027年に浦和へヒルトンホテルができるんだって！埼玉初らしくて楽しみだね。",
+   "term": null,
+   "emoji": "🏨"
+  },
+  {
+   "id": "2026-11-26-am-4",
+   "category": "saitama",
+   "categoryName": "埼玉",
+   "title": "駅ピアノ、笑顔と音楽紡ぐ場に 坂戸駅自由通路 色彩豊かなステンドグラスの傍ら 「笑顔と音楽が集まる場所」 利用者3万人超",
+   "link": "https://news.google.com/rss/articles/CBMiS0FVX3lxTE5YQ1JlNGx1anpQS3FGQ0pzQ3I3X3p2UFZMWmYyTXNnRkF0MHhTR0NuU3FqOEF5NzdnWFBIVHdRREs5Y1gzLXRCWmJDWQ?oc=5",
+   "source": "47NEWS",
+   "desc": "",
+   "img": "",
+   "time": "2026-11-25T07:11:01.000Z",
+   "buzz": 3,
+   "top": false,
+   "summary": "埼玉県にある坂戸駅の自由通路に設置されている「駅ピアノ」の利用者が、累計で3万人を超えました。美しいステンドグラスのすぐそばに置かれており、地元の人たちの笑顔と音楽が集まる人気のスポットになっています。買い物やお出かけの途中に素敵な演奏が聴ける場所として、地域で親しまれています。",
+   "points": [
+    "坂戸駅の「駅ピアノ」利用者が3万人を突破",
+    "ステンドグラスの横にあり笑顔が集まる場所に"
+   ],
+   "why": "身近な駅に音楽があふれる場所があると、毎日の通勤や買い物の道のりがちょっと楽しくなりますね。",
+   "talk": "坂戸駅にある駅ピアノ、利用した人が3万人を超えたんだって！素敵だよね。",
+   "term": null,
+   "emoji": "🎹"
+  },
+  {
+   "id": "2026-11-26-am-5",
+   "category": "saitama",
+   "categoryName": "埼玉",
+   "title": "「炎が上がっている」と通報 住宅で火事、延焼中 埼玉・加須市（2026年11月24日掲載）｜日テレNEWS NNN",
+   "link": "https://news.google.com/rss/articles/CBMifEFVX3lxTE1UeGdhNjFJWkJTakJVNVpQeTJTUWtadVBGUEV3WWZZVW13MU1IWmQwMEN1ajB6WDQ3UUF3TGo2UXN6WTFsU1I3akxFZmsyR3FEUXVEYWFLcXdmSC1kSWY0VjNuU0VMQUFweElmZ0RrYXhDd09BTENTUVdZakE?oc=5",
+   "source": "日テレNEWS NNN",
+   "desc": "",
+   "img": "",
+   "time": "2026-11-25T04:17:00.000Z",
+   "buzz": 3,
+   "top": false,
+   "summary": "埼玉県加須市にある住宅で火災が発生しました。「炎が上がっている」と近隣から通報があり、現在も周辺へと火が燃え広がっています。消防による消火活動が続けられており、近隣にお住まいの方は今後の情報や避難の指示に十分注意する必要があります。",
+   "points": [
+    "埼玉県の加須市にある住宅で火事が発生",
+    "炎が上がり、周囲へ燃え広がっている状態"
+   ],
+   "why": "空気が乾燥する季節は火事が起きやすいので、家の火の元にはお互いに気をつけたいですね。",
+   "talk": "加須市で大きな住宅火災があったみたい。乾燥してるから火の元には気をつけなきゃね。",
+   "term": null,
+   "emoji": "🚨"
+  },
+  {
+   "id": "2026-11-26-am-6",
+   "category": "saitama",
+   "categoryName": "埼玉",
+   "title": "川越でLGBTQ+を学ぶ「映画『クイーン・オブ・アイルランド』特別上映会」開催 (TOKYO HEADLINE WEB)",
+   "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxOZU5HeVhobk96dDFTRi1UX1RjRUViVTRFeTdJQkJFamxyTTA2TENXeHl1ZUNReENQQ1AxYU5oSms3dDlKTXBaY1FkX0VzdE9OQ1Q3TzZyQ1ZGUEc1REItMTVTaEU4YldZUmVEZm9JOFRmTEU2MUZJVkNMMzZkSGFNV2lUdHFyYnJaa2xLMV9B?oc=5",
+   "source": "Yahoo!ニュース",
+   "desc": "",
+   "img": "",
+   "time": "2026-11-25T11:54:32.000Z",
+   "buzz": 1,
+   "top": false,
+   "summary": "埼玉県川越市で、LGBTQ+などの性的マイノリティについて理解を深めるためのイベントが開催されます。当日は映画『クイーン・オブ・アイルランド』の特別上映会が行われ、多様性について学ぶ機会となります。誰もが自分らしく生きられる社会について考えるきっかけになりそうです。",
+   "points": [
+    "川越でLGBTQ+を学ぶ映画上映会が開催",
+    "作品は『クイーン・オブ・アイルランド』"
+   ],
+   "why": "学校や職場でも多様性の理解が進んでいるので、家族で考えるきっかけになりますね。",
+   "talk": "川越で多様性を学ぶ映画の上映会があるらしいよ。最近こういうイベント増えたよね。",
+   "term": {
+    "word": "LGBTQ+",
+    "meaning": "好きな性別や自身の性の認識が多様であることを示す言葉の総称です。"
+   },
+   "emoji": "🌈"
+  },
+  {
+   "id": "2026-11-26-am-7",
+   "category": "saitama",
+   "categoryName": "埼玉",
+   "title": "日本一高い!? 「所沢 天空の芋煮会」初開催！",
+   "link": "https://news.google.com/rss/articles/CBMiX0FVX3lxTFB3OTBqd0ZxQkV1UWZFMEJ1cmxLUWZlVkZoSnM5eERUbm1wTGxPdWctbHp1b0dqbXpidEUycWFXNVdoNXhVRXhxS3A0WFFYSFFwVlBFN0lySFUyNnhRdzBv?oc=5",
+   "source": "Koubo",
+   "desc": "",
+   "img": "",
+   "time": "2026-11-25T04:26:16.000Z",
+   "buzz": 1,
+   "top": false,
+   "summary": "埼玉県所沢市で「所沢 天空の芋煮会」というイベントが初めて開催されます。「日本一高い!?」というキャッチコピーがついており、高い場所や特別なロケーションで芋煮を楽しむ趣向になっています。秋の味覚である美味しい芋煮を味わいながら、家族や友人と盛り上がれる新しい注目イベントです。",
+   "points": [
+    "所沢で「天空の芋煮会」が初開催される",
+    "「日本一高い!?」をテーマにした新しいイベント"
+   ],
+   "why": "休日の家族のお出かけや、おいしい旬の味覚を楽しむイベントとしてぴったりです。",
+   "talk": "所沢で「天空の芋煮会」っていうイベントが初開催されるんだって！楽しそうだよね。",
+   "term": null,
+   "emoji": "🍲"
+  },
+  {
+   "id": "2026-11-26-am-8",
+   "category": "fun",
+   "categoryName": "ほっこり・話題",
+   "title": "「オウム貝みたいなタコ獲れた」⇒ 〝ちょっと待って！〟実は『激レア』 水族館が引き取りに来た生き物の正体とは？富山・魚津水族館で展示（西日本新聞me）",
+   "link": "https://news.google.com/rss/articles/CBMif0FVX3lxTE13YmJkczVtdktoblc3X2R2aE0zSndjaWhoVlFVZklXM0Z5Qjhhb3ZaQWJ2TlZwQk9jd2luX0hWWW5pMk9xQ09ZZndfZzJhQmpVSGZYY1FHU0c4Z0VXdWNVVmZmaVVIdi1CWlh2U05tVDRhYW1MOUQyeDJtWlZpOTQ?oc=5",
+   "source": "Yahoo!ニュース",
+   "desc": "",
+   "img": "",
+   "time": "2026-11-25T14:40:19.000Z",
+   "buzz": 1,
+   "top": true,
+   "summary": "富山県で「オウム貝のようなタコ」が見つかり、話題になっています。実はこれは非常に珍しい種類のタコで、連絡を受けた魚津水族館が引き取りました。水族館では現在、この貴重な生き物の展示を行っています。珍しい姿を一目見ようと、訪れた人たちを驚かせているようです。",
+   "points": [
+    "珍しいタコが発見され話題に",
+    "魚津水族館が引き取って展示中"
+   ],
+   "why": "珍しい海の生き物の話題は、家族でお出かけするきっかけになりますね。",
+   "talk": "富山でオウム貝みたいな珍しいタコが見つかって、水族館で展示されてるらしいよ！",
+   "term": null,
+   "emoji": "🐙"
+  },
+  {
+   "id": "2026-11-26-am-9",
+   "category": "fun",
+   "categoryName": "ほっこり・話題",
+   "title": "【速報】ラッコ国内２例目の展示が実現へ！ 来月大阪の海遊館で『４頭』展示へ アラスカ州の海岸で保護された”赤ちゃん”たち 展示減のラッコ ピーク時は全国１２２頭飼育も…現在国内で1頭のみ | MBSニュース | 関西の最新ニュースを分かりやすく。 (1ページ)",
+   "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE13OHE5R1lrTXljZ2VHbFVoejlwejJEVC1zUTZ4bGg5NWJGOGtPTHZwN2VoQkRVbHpxRjhCOGJlaW1fUlJySEREV2NqMW05a2NPU2h3Vm8tcDMzeVBVcnA2YzFtSEt0Zms?oc=5",
+   "source": "TBS NEWS DIG",
+   "desc": "",
+   "img": "",
+   "time": "2026-11-25T06:43:00.000Z",
+   "buzz": 3,
+   "top": false,
+   "summary": "大阪の水族館「海遊館」で来月から、4頭のラッコが新しく展示されることになりました。アラスカで保護された赤ちゃんラッコたちで、国内では非常に珍しい複数頭の展示となります。かつては全国で120頭以上いたラッコですが、現在は国内に1頭しかおらず、今回の展示決定は大きな話題となっています。",
+   "points": [
+    "大阪の海遊館で4頭のラッコを来月展示",
+    "保護されたアラスカの赤ちゃんラッコ",
+    "現在国内に1頭しかいないため貴重"
+   ],
+   "why": "国内でほとんど見られなくなったラッコに会える、貴重な機会になりそうです。",
+   "talk": "大阪の海遊館に、来月からアラスカで保護されたラッコの赤ちゃんが4頭も来るんだって！",
+   "term": null,
+   "emoji": "🦦"
+  },
+  {
+   "id": "2026-11-26-am-10",
+   "category": "fun",
+   "categoryName": "ほっこり・話題",
+   "title": "竹内まりや KFCのCM曲がギネス",
+   "link": "https://news.google.com/rss/articles/CBMiUEFVX3lxTE1uTDJ3NzdzVG5oeFU2bzlIYnB4Q0Vjc2JHa2xpamJLSzNzQ1hReHlKUEIwZElrMlV0V3dVUnVILXhCT19DZDdtbnIycV91eVpO?oc=5",
+   "source": "Yahoo!ニュース",
+   "desc": "",
+   "img": "",
+   "time": "2026-11-24T23:27:54.000Z",
+   "buzz": 2,
+   "top": false,
+   "summary": "歌手の竹内まりやさんの楽曲が、ギネス世界記録に認定されました。認定されたのは、ケンタッキーフライドチキン（KFC）のクリスマスCMでおなじみの曲です。長年にわたって多くの人に親しまれ、冬の定番曲として定着していることが世界的な記録として認められました。",
+   "points": [
+    "竹内まりやさんのKFC曲がギネス認定",
+    "クリスマスの定番CMソングとして有名"
+   ],
+   "why": "毎年冬になるとお店やテレビでよく耳にする曲なので、親しみを感じますね。",
+   "talk": "ケンタッキーのクリスマスCMで流れる竹内まりやさんの曲、ギネス世界記録になったんだって！",
+   "term": {
+    "word": "ギネス世界記録",
+    "meaning": "世界一の記録を集めて認定し、本などにまとめている世界的な記録のこと。"
+   },
+   "emoji": "🍗"
+  },
+  {
+   "id": "2026-11-26-am-11",
+   "category": "politics",
+   "categoryName": "政治",
+   "title": "関文科大臣への問責決議案 野党側は26日に提出へ 政治資金パーティーめぐり「説明責任を果たしていない」 無所属議員6人の動向がカギ",
+   "link": "https://news.google.com/rss/articles/CBMiV0FVX3lxTE1lR2FGeTU1b3prcmtXNEl1aThoeGJBcHpTU0N4R01kbDN5c1NBUjJNc1lNTXc1a19DM3BrWTFET3pWbzYyRFVEYUdoeTMzV1ZuOGMtdXhoaw?oc=5",
+   "source": "TBS NEWS DIG",
+   "desc": "",
+   "img": "",
+   "time": "2026-11-25T14:50:37.000Z",
+   "buzz": 3,
+   "top": false,
+   "summary": "野党側は26日、政治資金パーティーをめぐり説明責任を果たしていないとして、関文科大臣に対する問責決議案を提出する方針を固めました。無所属議員6人の動きが今後の大きなカギとなります。",
+   "points": [
+    "野党側が関文科大臣の問責決議案を26日に提出へ",
+    "政治資金パーティーをめぐる説明責任が問われている",
+    "可決の行方は無所属議員6人の動向がカギを握る"
+   ],
+   "why": "国のトップに近い大臣の進退は、私たちの税金の使い方や政治のあり方に直接関わる大切なニュースです。",
+   "talk": "関文科大臣への問責決議案、無所属の議員さんたちの動きでどうなるか決まるらしいね。",
+   "term": {
+    "word": "問責決議案",
+    "meaning": "大臣などの責任を問うために、国会で出される意見のことです。"
+   },
+   "emoji": "🏛️"
+  },
+  {
+   "id": "2026-11-26-am-12",
+   "category": "politics",
+   "categoryName": "政治",
+   "title": "独首相、ウクライナ支援への理解求める ロの脅威強調（ロイター）",
+   "link": "https://news.google.com/rss/articles/CBMif0FVX3lxTE9UX1c3UEg0cng2TkN0bWFtXzc0V3ZjVmxzOVNvQ05ZVmJFZ0gtazRqRE1ibDZCaEhJNXRub0JNaDhzOHJfWTVhaGxiR25YZTFDUWNWbTAwNHU5UXRlcTJid25Yd0JHVDJxdWF1WHFFaG1rRmxrWk56Umgwdjg3NHc?oc=5",
+   "source": "Yahoo!ニュース",
+   "desc": "",
+   "img": "",
+   "time": "2026-11-25T18:36:23.000Z",
+   "buzz": 2,
+   "top": false,
+   "summary": "ドイツのショルツ首相が、ロシアの脅威を強く強調し、ウクライナへの支援を引き続き行うことへの理解を求めました。国際社会の安全保障をめぐる動きとして注目されています。",
+   "points": [
+    "ドイツの首相がウクライナ支援への理解を求める",
+    "ロシアによる脅威を改めて強く強調した"
+   ],
+   "why": "遠い国の出来事に見えますが、世界の情勢は私たちの毎日の暮らしや物価にも影響することがあります。",
+   "talk": "ドイツの首相がウクライナ支援への理解を求めて、ロシアの脅威を訴えていたみたいだよ。",
+   "term": {
+    "word": "脅威",
+    "meaning": "おびやかして、恐れさせるような存在や様子のことです。"
+   },
+   "emoji": "🌍"
+  },
+  {
+   "id": "2026-11-26-am-13",
+   "category": "politics",
+   "categoryName": "政治",
+   "title": "防災行政無線で誤って来年４月の選挙の投票を呼び掛け…長崎市(1) | 長崎ニュース",
+   "link": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE5qYWZVWU16bzd6MnlaZFFMaS02VnBWYzRxZURLcHFwa0lVSnlSYTB2WXRVV1Rac2dTQXNZYVBxeWNPQzk1UnFkcXZfcGczV0xZQVlublV1UHI0c2xTRjNoWlJKcm8?oc=5",
+   "source": "NCC長崎文化放送",
+   "desc": "",
+   "img": "",
+   "time": "2026-11-25T09:23:47.000Z",
+   "buzz": 2,
+   "top": false,
+   "summary": "長崎市で、防災行政無線を使って、来年4月に行われる予定の選挙への投票を呼びかける放送を誤って流してしまいました。市がどのような対応をとるのか気に掛かるハプニングです。",
+   "points": [
+    "長崎市の防災行政無線で誤った放送が流れる",
+    "来年4月の選挙の投票を呼びかける内容だった"
+   ],
+   "why": "地域の防災無線は大切な情報を知らせるものなので、誤放送があったときは驚いてしまいますね。",
+   "talk": "長崎市で防災行政無線から来年の選挙の投票を呼びかける放送が間違えて流れちゃったんだって。",
+   "term": {
+    "word": "防災行政無線",
+    "meaning": "災害時などに、市町村から住民へ音声で情報を伝えるための無線システムです。"
+   },
+   "emoji": "📢"
+  },
+  {
+   "id": "2026-11-26-am-14",
+   "category": "politics",
+   "categoryName": "政治",
+   "title": "政府・夫婦と子ども2人世帯に「最大27万円」給付案検討 参考値として 29年度の本格導入へ向け 高市総理は“先行実施は最大6万円”（TBS NEWS DIG Powered by JNN）",
+   "link": "https://news.google.com/rss/articles/CBMif0FVX3lxTE5mNWpZcjE2YW1IbEpGZS12OWZxQ0dMTWo5bFhIbExqR3ZXQWNEZDBsTlhmUnphcF9aNG9OcW5ycWtIWTZPZnRacWhKTkxWZlY1anJhRXhLVE5hTTY3RlA4OXRsWkwtZUJoQU91UFFfQk1nVTlRMndDX2ZqSU1CYkE?oc=5",
+   "source": "Yahoo!ニュース",
+   "desc": "",
+   "img": "",
+   "time": "2026-11-25T02:44:07.000Z",
+   "buzz": 2,
+   "top": false,
+   "summary": "政府は夫婦と子ども2人の世帯を対象に、最大27万円を給付する案の検討に入りました。2029年度の本格導入に向け、高市総理は先行して最大6万円を実施する方針を示しています。",
+   "points": [
+    "夫婦と子ども2人の世帯に最大27万円の給付案を検討",
+    "2029年度の本格導入に向けて調整が進められている",
+    "高市総理は先行実施として最大6万円を掲げている"
+   ],
+   "why": "子育て世帯への大きなお金の支援策なので、家計の計画やこれからの生活にとても関わってきますね。",
+   "talk": "子育て世帯に最大27万円給付する案が出ていて、先行して最大6万円出す話もあるみたいだよ。",
+   "term": {
+    "word": "給付案",
+    "meaning": "国などからお金や品物を支給するための具体的な計画のことです。"
+   },
+   "emoji": "💴"
+  },
+  {
+   "id": "2026-11-26-am-15",
+   "category": "politics",
+   "categoryName": "政治",
+   "title": "関文科大臣への問責決議案 野党きょう提出へ 賛否拮抗で行方不透明 可決なら消費税減税法案にも影響か",
+   "link": "https://news.google.com/rss/articles/CBMiV0FVX3lxTFBYQTkwd0VKUkNkR25ZWkFPQVRrM3cxUUVuNTQ5V01pV2hGWVFtTm1zSG1fTE02LXM5SGhTMlRUNTBQT0VVS2JQZnlxakQ3bTFCdDJmMVNpRQ?oc=5",
+   "source": "TBS NEWS DIG",
+   "desc": "",
+   "img": "",
+   "time": "2026-11-25T18:57:27.000Z",
+   "buzz": 1,
+   "top": false
+  },
+  {
+   "id": "2026-11-26-am-16",
+   "category": "economy",
+   "categoryName": "経済",
+   "title": "PayPayでシステム障害 カード連携サービスで決済できず",
+   "link": "https://news.web.nhk/newsweb/na/nd-20261125de81532",
+   "source": "NHK",
+   "desc": "スマホ決済大手のPayPayは、システム障害によって25日午後8時過ぎから、クレジットカードと連携したサービスで決済ができなくなっているということです。 会社では原因を調べていますが、復旧のめどは立…",
+   "img": "",
+   "time": "2026-11-25T14:16:00.000Z",
+   "buzz": 2,
+   "top": false,
+   "summary": "スマホ決済のPayPayで、25日の午後8時過ぎからシステム障害が発生しています。この影響で、クレジットカードと連携したサービスでの支払いができない状態が続いています。会社側は原因を調べていますが、復旧のめどは立っていないとのことです。",
+   "points": [
+    "PayPayでシステム障害が発生中",
+    "クレカ連携の支払いができない状態",
+    "復旧のめどはまだ立っていない"
+   ],
+   "why": "キャッシュレス決済が当たり前になった今、急に支払いができないと困りますよね。念のため現金も持ち歩くのが安心かもしれません。",
+   "talk": "PayPayで今、カード払いができない障害が起きてるみたい。お買い物に行く予定があるなら気をつけてね！",
+   "term": {
+    "word": "システム障害",
+    "meaning": "コンピューターやネットワークの仕組みが正常に動かなくなり、サービスが使えなくなること。"
+   },
+   "emoji": "📱"
+  },
+  {
+   "id": "2026-11-26-am-17",
+   "category": "economy",
+   "categoryName": "経済",
+   "title": "【詳しく】エヌビディアCEO フアン氏が復帰へ 水面下の動きは",
+   "link": "https://news.web.nhk/newsweb/na/nd-20261123de80304",
+   "source": "NHK",
+   "desc": "アメリカの半導体大手「エヌビディア」のCEOにジェンスン・フアン氏が電撃的に復帰したことについて、トランプ大統領は、23日、「私が取締役会を説得した」などと、関与を明らかにしました。辞任から10日あま…",
+   "img": "",
+   "time": "2026-11-24T08:45:40.000Z",
+   "buzz": 3,
+   "top": false,
+   "summary": "アメリカの半導体大手エヌビディアのCEOに、ジェンスン・フアン氏が電撃復帰しました。トランプ大統領は、この復帰について「自分が取締役会を説得した」と関与を明らかにしています。辞任からわずか10日あまりでの異例の復帰劇となり、注目が集まっています。",
+   "points": [
+    "エヌビディアのCEOにフアン氏が復帰",
+    "トランプ大統領が説得に関与と発言",
+    "辞任から約10日での電撃的な復帰"
+   ],
+   "why": "世界的な半導体企業のトップ人事は、私たちのスマホやパソコンの価格、経済全体にも影響を与える可能性がある大きなニュースです。",
+   "talk": "エヌビディアのCEOが、辞めたばかりなのにすぐ復帰したんだって。トランプ大統領が説得したらしいよ、びっくりだよね。",
+   "term": {
+    "word": "CEO",
+    "meaning": "最高経営責任者のこと。会社全体の経営方針を決め、責任を負うトップの役職です。"
+   },
+   "emoji": "💻"
+  },
+  {
+   "id": "2026-11-26-am-18",
+   "category": "economy",
+   "categoryName": "経済",
+   "title": "米司法長官、エヌビディアを捜査するか答えず 株価6％反落、フアン氏復帰に米与野党から批判",
+   "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE1TdF9JWC1kdGFTcDd4MkZULXAxaWJRNWJ5TmJkUDRoVFQ1dUFBNHFQLThNOHhZeXc1X0VpSHJjUnhvdHpuOFp2Q2F0cFNTYVNZWGtTUE5LOUNKQnVueF8yaNIBZkFVX3lxTFBBZG44cm9ES1oxcHhMaHd0ZlNXcmJpaUFrTFdHRU4tamtLa1VSZHdqNHJJWUVLZ0tXS0hZazZVbURsMkVLTHYwUnpaNTlNVVVkTjFEaGdKWkxLZlFHb2hZX3NoOE40UQ?oc=5",
+   "source": "BBC",
+   "desc": "",
+   "img": "",
+   "time": "2026-11-25T01:59:12.000Z",
+   "buzz": 2,
+   "top": false,
+   "summary": "エヌビディアのフアン氏復帰をめぐり、アメリカ司法長官は捜査の可能性について明言を避けました。一方で、この復帰劇には米与野党から批判の声も上がっています。こうした混乱を受け、エヌビディアの株価は6％下落しました。",
+   "points": [
+    "フアン氏復帰に米与野党から批判",
+    "司法長官は捜査について明言せず",
+    "株価は6％下落と市場も反応"
+   ],
+   "why": "企業のトップ人事が政治を巻き込んで揺れている様子は、今後の経済の先行きを占ううえで気になりますね。",
+   "talk": "エヌビディアのCEO復帰、なんだか政治的な話も絡んでいて大変そう。株価も下がっちゃったみたいだね。",
+   "term": null,
+   "emoji": "📉"
+  },
+  {
+   "id": "2026-11-26-am-19",
+   "category": "economy",
+   "categoryName": "経済",
+   "title": "米 過剰生産で日本などに追加関税 既存税率含め日本最大15％に",
+   "link": "https://news.web.nhk/newsweb/na/nd-20261126de81560",
+   "source": "NHK",
+   "desc": "USTR＝アメリカ通商代表部は、過剰に製品を生産して輸出し、アメリカの産業に打撃を及ぼしているとして、通商法301条に基づき、日本などに新たな追加関税を課す方針を明らかにしました。 このうち日本から…",
+   "img": "",
+   "time": "2026-11-25T16:21:46.000Z",
+   "buzz": 1,
+   "top": false,
+   "summary": "アメリカ政府は、日本などが製品を過剰に生産して輸出しているとして、新たに追加関税を課す方針を決めました。これにより、日本からの輸入品の一部に最大15％の関税がかかる可能性があります。アメリカは自国の産業を守るための措置だとしています。",
+   "points": [
+    "アメリカが日本などに追加関税の方針",
+    "過剰生産が理由で最大15％の関税へ",
+    "自国の産業を守るための措置"
+   ],
+   "why": "関税が上がると、日本から輸出される製品の価格競争力が落ちたり、私たちの生活にも間接的に影響が出るかもしれません。",
+   "talk": "アメリカが日本製品に追加関税をかけるかもしれないんだって。これから私たちの生活にどう影響するのかちょっと心配だね。",
+   "term": {
+    "word": "関税",
+    "meaning": "外国から輸入する商品にかける税金のこと。国内の産業を守るためにかけられることが多いです。"
+   },
+   "emoji": "🚢"
+  },
+  {
+   "id": "2026-11-26-am-20",
+   "category": "economy",
+   "categoryName": "経済",
+   "title": "米10月PCE物価指数 3カ月連続で伸び拡大 インフレ再加速 FRB利上げ観測強まる",
+   "link": "https://news.google.com/rss/articles/CBMiekFVX3lxTE1xdG1OOUJnanpFUWFqcGlmOTYzVVB4Tk5sWVhEdkZPMnJWazVZUGdlUFVhMld2bzZyWEt6X1hSaUNQcmxHUlJWUTZYckxTLTBacjVSTVY2TU4ySV9iRUs5NHNvQnZzVmRzd0kyNThpUWI3Y3JUd1JyYkFB?oc=5",
+   "source": "テレ朝NEWS",
+   "desc": "",
+   "img": "",
+   "time": "2026-11-25T19:04:53.000Z",
+   "buzz": 1,
+   "top": false,
+   "summary": "アメリカで10月のPCE物価指数が発表され、前年同月比で3カ月連続して物価の伸びが大きくなりました。インフレが再び進んでいる兆しがあり、アメリカの中央銀行にあたるFRBによる追加の利上げ観測が強まっています。物価の上昇がなかなか落ち着かず、今後の家計への負担や世界経済への影響が心配されています。",
+   "points": [
+    "アメリカの10月物価上昇が3カ月連続で拡大",
+    "インフレの再加速でFRBの利上げ観測が強まる"
+   ],
+   "why": "アメリカの物価や金利の動きは、日本の円安や輸入商品の価格、私たちの生活コストにも大きく関わってきます。",
+   "talk": "アメリカの物価がまた上がり始めていて、金利がどうなるか注目されているみたいだよ。",
+   "term": {
+    "word": "PCE物価指数",
+    "meaning": "消費者が実際に買うモノやサービスの価格変動を示す指数で、アメリカの中央銀行が物価の動きを見るためにとても重視しているものです。"
+   },
+   "emoji": "📈"
+  },
+  {
+   "id": "2026-11-26-am-21",
+   "category": "world",
+   "categoryName": "国際",
+   "title": "米 牧場で働く3人が鳥インフルエンザウイルス感染 1人死亡 WHO",
+   "link": "https://news.web.nhk/newsweb/na/nd-20261125de81523",
+   "source": "NHK",
+   "desc": "WHO＝世界保健機関は、アメリカ西部の乳牛を飼育する牧場で働く3人が鳥インフルエンザウイルスに感染し、このうち1人が死亡したと明らかにしました。現段階で人から人に感染したことを示す証拠はなく、一般の人…",
+   "img": "",
+   "time": "2026-11-25T14:08:00.000Z",
+   "buzz": 3,
+   "top": false,
+   "summary": "WHOは、アメリカ西部の乳牛を飼育する牧場で働く3人が鳥インフルエンザウイルスに感染し、このうち1人が死亡したと発表しました。現段階では人から人への感染を示す証拠はないとしています。一般の人へのリスクは低いとみられていますが、今後の動向に注意が必要です。",
+   "points": [
+    "アメリカの牧場で3人が鳥インフルエンザに感染",
+    "このうち1人が死亡したとWHOが発表",
+    "人から人への感染の証拠は現時点ではない"
+   ],
+   "why": "鳥インフルエンザが牛や人に感染したニュースですが、今のところ人から人へはうつらないとされています。私たちの生活への直接の影響は少なそうです。",
+   "talk": "アメリカの牧場で鳥インフルエンザにかかった人が出て、亡くなった方もいるんだってね。",
+   "term": {
+    "word": "鳥インフルエンザ",
+    "meaning": "鳥類の間で流行するウイルスですが、まれに哺乳類や人にも感染することがあります。"
+   },
+   "emoji": "🦠"
+  },
+  {
+   "id": "2026-11-26-am-22",
+   "category": "world",
+   "categoryName": "国際",
+   "title": "【随時更新】ロシア ウクライナに軍事侵攻（11月25日の動き）",
+   "link": "https://news.web.nhk/newsweb/na/nd-20261028de67169",
+   "source": "NHK",
+   "desc": "ロシアによるウクライナに対する軍事侵攻が続いています。 ウクライナの各地でロシア軍とウクライナ軍が戦闘を続けています。戦闘の状況や関係各国の外交など、ウクライナ情勢をめぐる25日（日本時間）の動きを…",
+   "img": "",
+   "time": "2026-11-25T05:05:00.000Z",
+   "buzz": 3,
+   "top": false,
+   "summary": "ロシアによるウクライナへの軍事侵攻が続いています。ウクライナ各地でロシア軍とウクライナ軍の戦闘が今もなお続いており、緊迫した状況が伝えられています。世界各国による外交の動きも含め、現地での被害や対立の行方が心配されています。",
+   "points": [
+    "ウクライナ各地でロシア軍との戦闘が継続中",
+    "戦闘や外交の動きが随時報じられている",
+    "現地の緊迫した状況が続いている"
+   ],
+   "why": "遠い国の戦争の話に思えますが、世界的なエネルギーや物価の動きにつながるため、私たちの家計にも無関係ではありません。",
+   "talk": "ウクライナのニュースはいつになったら平和になるのか心配になるよね。",
+   "term": {
+    "word": "軍事侵攻",
+    "meaning": "国が軍隊を進めて、ほかの国を攻め取ろうとすること。"
+   },
+   "emoji": "🕊️"
+  },
+  {
+   "id": "2026-11-26-am-23",
+   "category": "world",
+   "categoryName": "国際",
+   "title": "インドネシアの金鉱山で浸水 3人死亡 23人坑内に閉じ込めか",
+   "link": "https://news.web.nhk/newsweb/na/nd-20261125de81535",
+   "source": "NHK",
+   "desc": "インドネシアの金鉱山で、大雨で氾濫した川の水が坑道に流れ込み、地元当局はこれまでに3人が死亡したと発表しました。 坑内にはまだ23人が閉じ込められているとみて捜索が続けられています。",
+   "img": "",
+   "time": "2026-11-25T15:08:00.000Z",
+   "buzz": 2,
+   "top": false,
+   "summary": "インドネシアの金鉱山で、大雨で川が氾濫し坑道に水が流れ込む事故が起きました。地元当局によると、これまでに3人の死亡が確認されています。まだ23人が坑内に閉じ込められているとみられており、懸命な捜索活動が続けられています。",
+   "points": [
+    "大雨で川が氾濫しインドネシアの金鉱山が浸水",
+    "これまでに3人の死亡が確認される",
+    "坑内に23人が閉じ込められているとみて捜索中"
+   ],
+   "why": "海外の大きな事故のニュースですが、自然災害の恐ろしさや働き方の安全について改めて考えさせられますね。",
+   "talk": "インドネシアの金鉱山で大雨による浸水事故があったみたいで、閉じ込められた人の救助を祈るばかりだね。",
+   "term": {
+    "word": "坑道",
+    "meaning": "鉱石などを掘り出すために地下へ掘られた通路のこと。"
+   },
+   "emoji": "⛏️"
+  },
+  {
+   "id": "2026-11-26-am-24",
+   "category": "world",
+   "categoryName": "国際",
+   "title": "NY株式市場 ナスダック 一時4％超の下落 ハイテク株売りが再び",
+   "link": "https://news.web.nhk/newsweb/na/nd-20261126de81556",
+   "source": "NHK",
+   "desc": "25日のニューヨーク株式市場では、AIの先行きに対する不透明感が強まるなかで、半導体をはじめ幅広い銘柄に売り注文が広がり、ハイテク株の比率が高いナスダックの株価指数は前日と比べて一時、4％を超える大幅…",
+   "img": "",
+   "time": "2026-11-25T15:45:44.000Z",
+   "buzz": 1,
+   "top": false,
+   "summary": "25日のニューヨーク株式市場で、AIの先行きに対する不安から半導体などの幅広い銘柄に売り注文が広がりました。ハイテク株の比率が高いナスダックの株価指数は、前日と比べて一時4％を超える大幅な下落となりました。今後の市場の動きに注目が集まっています。",
+   "points": [
+    "ニューヨークの株式市場でハイテク株が大幅下落",
+    "AIの将来に対する不透明感が広がったため",
+    "ナスダックは一時4％を超える下落を記録"
+   ],
+   "why": "アメリカの株価が大きく下がると、日本の株や円の価値、私たちの年金などの資産運用にも影響が出るかもしれません。",
+   "talk": "アメリカの株価がAI関連で一時すごく下がったってニュースになっていたね。",
+   "term": {
+    "word": "ナスダック",
+    "meaning": "アメリカにある、世界中のハイテク企業が多く上場している株式市場のこと。"
+   },
+   "emoji": "📉"
+  },
+  {
+   "id": "2026-11-26-am-25",
+   "category": "world",
+   "categoryName": "国際",
+   "title": "韓国で仕事求める日本人増加 ソウルで合同企業説明会",
+   "link": "https://news.web.nhk/newsweb/na/nd-20261125de81481",
+   "source": "NHK",
+   "desc": "韓国で仕事を求める日本人が増える中、ソウルで韓国企業などによる合同企業説明会が開かれ、多くの日本人の若者が参加しました。",
+   "img": "",
+   "time": "2026-11-25T12:13:00.000Z",
+   "buzz": 1,
+   "top": false,
+   "summary": "韓国で仕事を求める日本人が増えていることを受け、ソウルで韓国企業などによる合同企業説明会が開催されました。会場には多くの日本の若者が参加し、韓国での就職に関心を寄せていました。この説明会は、韓国の経済界でつくる財団が25日にソウルで開いたものです。",
+   "points": [
+    "韓国で働きたい日本人が増えている",
+    "ソウルで韓国企業などの合同説明会が開かれた",
+    "多くの日本の若者が参加して関心を集めた"
+   ],
+   "why": "海外で働く若い人が増えているのは、私たちの働き方の選択肢やグローバルな動きを知るきっかけになりますね。",
+   "talk": "韓国で働きたい日本人が増えていて、ソウルの企業説明会にも若い人がたくさん参加したみたいだよ。",
+   "term": {
+    "word": "合同企業説明会",
+    "meaning": "複数の会社が集まって、仕事を探している人に向けて会社の紹介や採用情報の説明を行う会のことです。"
+   },
+   "emoji": "🇰🇷"
+  },
+  {
+   "id": "2026-11-26-am-26",
+   "category": "society",
+   "categoryName": "社会",
+   "title": "「重くても懲役10年」安倍元首相銃撃事件 山上被告の弁護団が控訴審の主張説明",
+   "link": "https://news.google.com/rss/articles/CBMidkFVX3lxTE45Y2ltSUVCZEFrQ0Rab2w5VmlYaURTbEdPSHpYRkpMeXhncEFvTU5NZUlVakdYRHR1aUxiYU9jZGtDV1ROb0k1QXBHT3BOdmQtaUJKSDNQZmNqWnpDTU42a2lYbTdUaXBlR25sN1JrVS14dUFyVGc?oc=5",
+   "source": "産経ニュース",
+   "desc": "",
+   "img": "",
+   "time": "2026-11-25T09:52:29.000Z",
+   "buzz": 4,
+   "top": true,
+   "summary": "安倍元首相銃撃事件で、山上徹也被告の弁護団が控訴審に向けた主張を行いました。弁護側は、一審の裁判での刑が重すぎるとして減刑を求めています。今後の裁判の行方に注目が集まっています。",
+   "points": [
+    "山上被告の弁護団が控訴審の主張を説明",
+    "一審の刑が重すぎるとして減刑を求める",
+    "事件の背景や責任の重さが争点となる"
+   ],
+   "why": "私たちの安全や社会の公正さに関わる重大な事件の裁判の行方です。",
+   "talk": "安倍元首相の事件の裁判、弁護団が控訴審の主張をしたみたいだよ。",
+   "term": {
+    "word": "控訴審",
+    "meaning": "第一審の判決に不服があるとき、より上の裁判所に判断をやり直してもらう裁判のことです。"
+   },
+   "emoji": "⚖️"
+  },
+  {
+   "id": "2026-11-26-am-27",
+   "category": "society",
+   "categoryName": "社会",
+   "title": "神奈川の死亡事故 5分以上逆走か",
+   "link": "https://news.google.com/rss/articles/CBMiUEFVX3lxTE1KNHVISm94MkgtQnV3eloxd0t1U2hvN2FIYm15WGQtME5OUzM2RHRmakNjUVVXd3pVTUtITjdxa3otSko4Y3ZKdUl3VXJpMTFf?oc=5",
+   "source": "Yahoo!ニュース",
+   "desc": "",
+   "img": "",
+   "time": "2026-11-25T14:46:07.000Z",
+   "buzz": 2,
+   "top": false,
+   "summary": "神奈川県で発生した死亡事故で、車が5分以上にわたって逆走していた疑いがあることが分かりました。高速道路や一般道での逆走は非常に危険であり、事故を防ぐための対策が求められています。",
+   "points": [
+    "神奈川県で起きた死亡事故のニュース",
+    "車が5分以上も逆走していた疑いがある",
+    "周囲の車や歩行者を巻き込む危険な状態だった"
+   ],
+   "why": "車を運転する私たちや家族にとっても、いつ巻き込まれるか分からない身近な危険です。",
+   "talk": "神奈川の事故、5分以上も逆走していたらしいから本当に怖いよね。",
+   "term": {
+    "word": "逆走",
+    "meaning": "道路を本来とは反対の方向へ向かって走ることです。"
+   },
+   "emoji": "🚗"
+  },
+  {
+   "id": "2026-11-26-am-28",
+   "category": "society",
+   "categoryName": "社会",
+   "title": "【不正請求2.4億円】国立成育医療研究センターで大規模不正が発覚《病院長はNHK「プロフェッショナル」出演、高市首相も視察》",
+   "link": "https://news.google.com/rss/articles/CBMiS0FVX3lxTFBtS2VUUnF2YTljamVVdEdEN1VzRkdwQ2o2LXpjdU9oODRuNzNJWXNOWTJWdVhNd1pURjMtWUZsbk82WFF5SmJ6SHlmZw?oc=5",
+   "source": "文春オンライン",
+   "desc": "",
+   "img": "",
+   "time": "2026-11-25T07:00:00.000Z",
+   "buzz": 2,
+   "top": false,
+   "summary": "国立成育医療研究センターで、2億4千万円もの大規模な不正請求が発覚しました。子供の医療を支える信頼性の高い病院での不祥事に、大きな驚きとショックが広がっています。",
+   "points": [
+    "国立成育医療研究センターで大規模な不正が発覚",
+    "不正請求の額はおよそ2億4千万円にのぼる",
+    "病院長はテレビ番組出演などの経歴もあった"
+   ],
+   "why": "子供の健康を支える信頼できる病院のお金に関する問題なので見過ごせません。",
+   "talk": "有名な病院で2億円超えの不正請求があったってニュースで見たよ。",
+   "term": {
+    "word": "不正請求",
+    "meaning": "ルールや法律に違反して、不当にお金を受け取ろうと請求することです。"
+   },
+   "emoji": "🏥"
+  },
+  {
+   "id": "2026-11-26-am-29",
+   "category": "society",
+   "categoryName": "社会",
+   "title": "【ほぼ全文】ペルー ケイコ・フジモリ大統領 単独インタビュー",
+   "link": "https://news.google.com/rss/articles/CBMiX0FVX3lxTE5zQlowS2k0QWlTVGUzSHktOHJyY2Y1eU1lM1FqVkNBZmt5M09YNUt4V0hHeVdZcTh1dFVidnRCaGg5eTRJdmUxSUJ4MV9lc2VTYmloR2d6SWFPcGFYR084?oc=5",
+   "source": "NHKニュース",
+   "desc": "",
+   "img": "",
+   "time": "2026-11-25T01:19:00.000Z",
+   "buzz": 2,
+   "top": false,
+   "summary": "ペルーのケイコ・フジモリ氏への単独インタビューのほぼ全文が公開されました。南米の政治状況やこれまでの歩みについて、本人が語った内容が詳しく伝えられています。",
+   "points": [
+    "ペルーのケイコ・フジモリ氏の単独インタビュー",
+    "NHKがそのほぼ全文を公開した",
+    "政治に対する思いやこれまでの経緯が語られている"
+   ],
+   "why": "海外の政治リーダーの考えを知ることで、世界の今の動きを知るきっかけになります。",
+   "talk": "ペルーのケイコ・フジモリさんのインタビュー記事が公開されたんだってね。",
+   "term": {
+    "word": "インタビュー",
+    "meaning": "記者などが相手に質問して、考えや事実を聞き出すことです。"
+   },
+   "emoji": "🎤"
+  },
+  {
+   "id": "2026-11-26-am-30",
+   "category": "society",
+   "categoryName": "社会",
+   "title": "埼玉 上尾で住宅火災 住人の78歳男性死亡",
+   "link": "https://news.web.nhk/newsweb/na/nd-20261125de80995",
+   "source": "NHK",
+   "desc": "25日朝、埼玉県上尾市で住宅が全焼する火事があり、焼け跡から見つかった遺体はこの家に住む78歳の男性と分かりました。",
+   "img": "",
+   "time": "2026-11-25T13:36:42.000Z",
+   "buzz": 1,
+   "top": false
+  },
+  {
+   "id": "2026-11-26-am-31",
+   "category": "life",
+   "categoryName": "くらし",
+   "title": "政府が最大27万円給付案 共働きの子2人一部世帯（テレビ朝日系（ANN））",
+   "link": "https://news.google.com/rss/articles/CBMif0FVX3lxTE5IWnNYSTlYczNUdF85dmsxak1QNFhwYzdOa2g3MHBRTWphMVpEeF9FZVlINksyUXRvRXpEQWdmU0JnczA2QWxJd2hONXRYZFo3cE1rc2k0MlI3eXJESlNHM3dhdjNCOEdqNHVyVHd5Y0VEalJSX2JTQ282bW5lcUk?oc=5",
+   "source": "Yahoo!ニュース",
+   "desc": "",
+   "img": "",
+   "time": "2026-11-25T03:15:01.000Z",
+   "buzz": 4,
+   "top": true
+  },
+  {
+   "id": "2026-11-26-am-32",
+   "category": "life",
+   "categoryName": "くらし",
+   "title": "丸亀製麺、主力5品値下げ（時事通信）",
+   "link": "https://news.google.com/rss/articles/CBMif0FVX3lxTE1zcTU4UFNkNXRFaElJS0t0N2xZWjR5bC0wbm5zaWI1SGpORS1QNXc3Rm1qeXVRUktRM0FsRjdLZ3AyaXVjaTh1YndQVURRbTIwNml6bjlKQjdpalJoRDFTbFFINGhEUDFwUlJnOE11T1ViUDBQOV9FNzNOOGRpR2s?oc=5",
+   "source": "Yahoo!ニュース",
+   "desc": "",
+   "img": "",
+   "time": "2026-11-25T11:00:38.000Z",
+   "buzz": 3,
+   "top": false
+  },
+  {
+   "id": "2026-11-26-am-33",
+   "category": "life",
+   "categoryName": "くらし",
+   "title": "中学校給食費22%値上げへ 江田島市教委",
+   "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE8zQ3AxM2dsOUxWZTlBVHZxTkxDNS01clRCcjBFNmRudmZWMUhUSms5QmNlZVFsdGZJVm5oNDRMc3lVVWwzNzNmVjNOMzVNdk8xOXNCb0habHVVZw?oc=5",
+   "source": "中国新聞デジタル",
+   "desc": "",
+   "img": "",
+   "time": "2026-11-25T12:34:02.000Z",
+   "buzz": 1,
+   "top": false
+  },
+  {
+   "id": "2026-11-26-am-34",
+   "category": "life",
+   "categoryName": "くらし",
+   "title": "100km走って電気代150円。90kg積めるのに、軽自動車の通れない道もラクラク。快適すぎる屋根付き電動トライク「ビベルトラック」に注目 (スマートモビリティJP)",
+   "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxNLVB0VUZncUNPNjhtNzZ2aTFEc3VWZUxHSC0yLTh4bzMzVzB2ZnJ5LWZfajQ1MHRkbW5VeHhCMTJVc2hiOS1DYkc4eTBhUHEzVkFiR1ZuM1liN19sMXRZbWxidU9mdnE0TTl6ajBZMnp4M1dJQk8wamRWdFNNcEFkcWdlaTZZbjBRT0dkRFVn?oc=5",
+   "source": "Yahoo!ニュース",
+   "desc": "",
+   "img": "",
+   "time": "2026-11-25T08:30:26.000Z",
+   "buzz": 1,
+   "top": false
+  },
+  {
+   "id": "2026-11-26-am-35",
+   "category": "life",
+   "categoryName": "くらし",
+   "title": "働くシニア“過去最多”インフレ時代生き抜く老後資金『年金プラスα』いくら必要？（テレビ朝日系（ANN））",
+   "link": "https://news.google.com/rss/articles/CBMif0FVX3lxTE9kRFhwR0c3N3JBS0lKaGVFWW1XUmpTblI0UjNjMDk3UU53RUFoMDctR0VDekE0OXgzZUo5Q05US0JfeDN6Z2Y4WUJha2NSYVVTcWdxc25uM2NmdnItbTZ3bE9CUXhMcWRFVDFjY3hWNUpCeHZweDFQaVBCY3FwZFE?oc=5",
+   "source": "Yahoo!ニュース",
+   "desc": "",
+   "img": "",
+   "time": "2026-11-25T07:00:15.000Z",
+   "buzz": 1,
+   "top": false
+  },
+  {
+   "id": "2026-11-26-am-36",
+   "category": "business",
+   "categoryName": "ビジネス",
+   "title": "米 日中やEUなどに新関税を提案",
+   "link": "https://news.google.com/rss/articles/CBMiUEFVX3lxTE9VQ196WGZRdkh3UG1OX2ZacjdnTmF6THo2cUJIZk9lX05mT3MxejlJb19ITmVsQUhia2hTZGRsNC13bnIwLUxyVFF2MjZNYnRE?oc=5",
+   "source": "Yahoo!ニュース",
+   "desc": "",
+   "img": "",
+   "time": "2026-11-25T15:18:15.000Z",
+   "buzz": 1,
+   "top": false
+  },
+  {
+   "id": "2026-11-26-am-37",
+   "category": "business",
+   "categoryName": "ビジネス",
+   "title": "エヌビディアのフアン氏復帰、企業統治に批判強まる…「政治介入に屈した」「取締役会の監督力弱まる」",
+   "link": "https://news.google.com/rss/articles/CBMiZEFVX3lxTFBLLVhFWk9ZV3FHbVZhaXhfU1g1cUg5eUozTkU1dzlMRTNGYWpYSE9DS19sdWh0MU9Xa2xScmM4RnBNODVnNmR0SUl5d2VjMVpuM1Z2OGdhTGl4QmZWeTlIWExmcjU?oc=5",
+   "source": "読売新聞",
+   "desc": "",
+   "img": "",
+   "time": "2026-11-25T13:33:00.000Z",
+   "buzz": 1,
+   "top": false
+  },
+  {
+   "id": "2026-11-26-am-38",
+   "category": "business",
+   "categoryName": "ビジネス",
+   "title": "「東海テレビ放送」が２・４億円の所得隠し、名古屋国税局が指摘…１億１６００万円納付し修正申告",
+   "link": "https://news.google.com/rss/articles/CBMiZkFVX3lxTFB0RUlxUmR0OTJUZWZ2SE1SNDJ6dTV2X3lyUW9RODNkYllMWmZUV096V3R6V3JhQ2h5Zm5ycnpteHZ0UGF3Q2FLMnMyZUd5U2JWODQ1aGNOVGhOOHBQQ2M2cXVXTHdZQQ?oc=5",
+   "source": "読売新聞",
+   "desc": "",
+   "img": "",
+   "time": "2026-11-25T12:14:00.000Z",
+   "buzz": 1,
+   "top": false
+  },
+  {
+   "id": "2026-11-26-am-39",
+   "category": "business",
+   "categoryName": "ビジネス",
+   "title": "金属労協 来年の春闘で1万5000円以上のベア要求へ",
+   "link": "https://news.google.com/rss/articles/CBMiX0FVX3lxTFBNRGYtOWZvVVhyb0NXQVRGVnkxZjItLVBmTERRMnZMZDc2MnR5bDBHYkZVbWRnX3NjRkhDM0pJX3RXeFFSTFJRcF9pUGNwUFRZOG16WmhEdENOZjIxWmdB?oc=5",
+   "source": "NHKニュース",
+   "desc": "",
+   "img": "",
+   "time": "2026-11-25T11:56:00.000Z",
+   "buzz": 1,
+   "top": false
+  },
+  {
+   "id": "2026-11-26-am-40",
+   "category": "business",
+   "categoryName": "ビジネス",
+   "title": "航空会社やJR東日本・東京メトロなど交通機関の現状と対策は",
+   "link": "https://news.google.com/rss/articles/CBMiX0FVX3lxTE55bXBQWmNEaHdLZFFPNmlVVE1nN2ZZMlN0ZVE4VWNFR2VLVUducjVyU2VDQ0k0X01QVmxDVDJkRlJBazEtYXBLQ1R6TWxzQ3VhUEFzbi1udVVUTHAzazhV?oc=5",
+   "source": "NHKニュース",
+   "desc": "",
+   "img": "",
+   "time": "2026-11-25T11:38:48.000Z",
+   "buzz": 1,
+   "top": false
+  },
+  {
+   "id": "2026-11-26-am-41",
+   "category": "science",
+   "categoryName": "科学・IT",
+   "title": "「いのちのスープ」料理研究家の辰巳芳子さん死去 101歳",
+   "link": "https://news.web.nhk/newsweb/na/nd-20261126de81547",
+   "source": "NHK",
+   "desc": "良質な食材を使った介護食「いのちのスープ」で知られ、料理番組などに出演して家庭料理や食文化のあり方を提言してきた料理研究家の辰巳芳子さんが25日、亡くなりました。 101歳でした。",
+   "img": "",
+   "time": "2026-11-25T15:35:13.000Z",
+   "buzz": 1,
+   "top": false
+  },
+  {
+   "id": "2026-11-26-am-42",
+   "category": "science",
+   "categoryName": "科学・IT",
+   "title": "ミスターマックス 約180万件の個人情報 流出した可能性",
+   "link": "https://news.web.nhk/newsweb/na/nd-20261125de81519",
+   "source": "NHK",
+   "desc": "福岡市に本社があり九州や関東などでディスカウントストアを展開する「ミスターマックス」は、メールの配信などに使用していた「KARTE」という外部のサービスが不正アクセスを受け、およそ180万件の個人情報…",
+   "img": "",
+   "time": "2026-11-25T13:30:27.000Z",
+   "buzz": 1,
+   "top": false
+  },
+  {
+   "id": "2026-11-26-am-43",
+   "category": "science",
+   "categoryName": "科学・IT",
+   "title": "パルシステムの顧客情報 約200万件が漏えい",
+   "link": "https://news.web.nhk/newsweb/na/nd-20261125de81299",
+   "source": "NHK",
+   "desc": "食品の宅配サービスを手がける「パルシステム生活協同組合連合会」は、注文サイトやアプリで一部使っている、外部の「KARTE」というサービスが不正アクセスを受け、顧客の情報199万7000件余りが漏えいし…",
+   "img": "",
+   "time": "2026-11-25T08:14:00.000Z",
+   "buzz": 1,
+   "top": false
+  },
+  {
+   "id": "2026-11-26-am-44",
+   "category": "science",
+   "categoryName": "科学・IT",
+   "title": "2万ドルのドローンにミサイルは割に合わず…ロシアのドローンを次々撃ち落とす\"1970年代就役の兵器\"の名前",
+   "link": "https://news.google.com/rss/articles/CBMif0FVX3lxTE5MRVVPQ1RjYlQzQ0l2XzhVdzlsWlNURVRneDMxcFlobDRYbjY5bXphZ1U4NmhqMG52bFFscHZrb1lFY0s1LUFDa0kyaUc1Z3lLb3BQNXhTR2pkRHRDUFpLZnNneXEyaHhjZFUxLXpSZDZfMEUxSnN4LUQwRkhTSW8?oc=5",
+   "source": "Yahoo!ニュース",
+   "desc": "",
+   "img": "",
+   "time": "2026-11-25T09:15:39.000Z",
+   "buzz": 1,
+   "top": false
+  },
+  {
+   "id": "2026-11-26-am-45",
+   "category": "science",
+   "categoryName": "科学・IT",
+   "title": "OpenAI、AIが書いた数学原稿で「行列積の限界は9/4乗」と主張 長年の難問に決着か（ビジネス＋IT）",
+   "link": "https://news.google.com/rss/articles/CBMif0FVX3lxTFA5cHNDRFhYRlJ1R1FaRTF5LVFHQk0zWTB5cUdWSU9aUlFVN3dJZmFKbldTcDN3YmFOUDNsejQwU0drM2FHeS1DTGwycGxITElVMldYdGtHbTVVVWdHdW8teVQ4WEszYTFCVGREX1hPRHhsNko0TTIyMFk4eDhTTVU?oc=5",
+   "source": "Yahoo!ニュース",
+   "desc": "",
+   "img": "",
+   "time": "2026-11-25T07:55:06.000Z",
+   "buzz": 1,
+   "top": false
+  }
+ ]
+}
