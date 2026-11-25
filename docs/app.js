@@ -19,7 +19,8 @@
     { id: 'pm', label: '夜', sub: 'こんばん', emoji: '🌙' },
   ];
   const DEFAULT_CATS = [
-    { id: 'saitama', name: '埼玉', emoji: '📍' }, { id: 'politics', name: '政治', emoji: '🏛️' },
+    { id: 'saitama', name: '埼玉', emoji: '📍' }, { id: 'fun', name: 'ほっこり・話題', emoji: '😊' },
+    { id: 'politics', name: '政治', emoji: '🏛️' },
     { id: 'economy', name: '経済', emoji: '💴' }, { id: 'world', name: '国際', emoji: '🌏' },
     { id: 'society', name: '社会', emoji: '🏙️' }, { id: 'life', name: 'くらし', emoji: '🛒' },
     { id: 'business', name: 'ビジネス', emoji: '💼' }, { id: 'science', name: '科学・IT', emoji: '🔬' },
@@ -135,7 +136,8 @@
       $('#list').innerHTML = `<div class="empty"><b>🗞️</b>まだニュースが届いていません。<br>朝・昼・夜に自動で届きます。</div>`;
       return;
     }
-    const top = items.filter((i) => i.top);
+    // いちばんの話題: 大きなニュースを先に、ほっこり・話題は最後（息抜き枠）
+    const top = items.filter((i) => i.top).sort((a, b) => (a.category === 'fun') - (b.category === 'fun'));
     $('#hero').innerHTML = top.map((it, n) => {
       const c = catOf(it.category);
       return `<button class="hero-card${readIds.has(it.id) ? ' read' : ''}" data-cat="${esc(it.category)}" data-id="${esc(it.id)}">
@@ -281,7 +283,8 @@
     store.set('days', [...readDays].slice(-400));
 
     const items = edition?.items || [];
-    const top = items.filter((i) => i.top);
+    // いちばんの話題: 大きなニュースを先に、ほっこり・話題は最後（息抜き枠）
+    const top = items.filter((i) => i.top).sort((a, b) => (a.category === 'fun') - (b.category === 'fun'));
     const done = items.filter((i) => readIds.has(i.id)).length;
     if (top.length && top.some((t) => t.id === id) && top.every((t) => readIds.has(t.id))) {
       celebrate('いちばんの話題、ぜんぶチェック！🎉');

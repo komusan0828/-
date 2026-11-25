@@ -1,6 +1,6 @@
 // オフラインでも最後に見た号を開けるようにする
 // アプリを直したときは、この番号と index.html の ?v= を一緒に上げる
-const CACHE = 'mn-v10';
+const CACHE = 'mn-v11';
 const SHELL = ['./', 'index.html', 'style.css', 'app.js', 'manifest.webmanifest', 'icons/icon.svg'];
 self.addEventListener('install', (e) => {
   // スマホに残っている古いファイルではなく、必ずサーバーから取り直して保存する
